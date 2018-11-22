@@ -4,35 +4,35 @@ import re
 import jieba
 import sklearn
 
-class law:
-    def __init__(self,file_path):
+class read_law:
+    def __init__(self, file_path):
         self.file_path = file_path
         self.data = pd.read_excel(self.file_path)
         print("Read Data Successful...")
         self.data_len = len(self.data)
-        print("This dataset has ",self.data_len,"rows of data.")
+        print("This dataset has ", self.data_len, "rows of data.")
 
     def number2(self):
         '''
         This function change '庭审程序' into one hot encodings
         '''
-        xingfabiangeng = np.zeros(data_len)
-        yishen=np.zeros(data_len)
-        ershen=np.zeros(data_len)
-        fushen=np.zeros(data_len)
-        qita=np.zeros(data_len)
+        xingfabiangeng = np.zeros(self.data_len)
+        yishen = np.zeros(self.data_len)
+        ershen = np.zeros(self.data_len)
+        fushen = np.zeros(self.data_len)
+        qita = np.zeros(self.data_len)
 
-        for i in range(data_len):
+        for i in range(self.data_len):
             if "刑罚变更" in self.data['庭审程序'][i]:
-                xingfabiangeng[i]+=1
+                xingfabiangeng[i] += 1
             if "一审" in self.data['庭审程序'][i]:
-                yishen[i]+=1
+                yishen[i] += 1
             if "二审" in self.data['庭审程序'][i]:
-                ershen[i]+=1
+                ershen[i] += 1
             if "复核" in self.data['庭审程序'][i]:
-                fushen[i]+=1
+                fushen[i] += 1
             if "其他" in self.data['庭审程序'][i]:
-                qita[i]+=1
+                qita[i] += 1
 
         self.data['庭审程序_是否_刑罚变更'] = xingfabiangeng
         self.data['庭审程序_是否_一审'] = yishen
@@ -40,7 +40,7 @@ class law:
         self.data['庭审程序_是否_复核'] = fushen
         self.data['庭审程序_是否_其他'] = qita
 
-        del xingfabiangeng, yishen, ershen, fushen, qita # 控制内存
+        del xingfabiangeng, yishen, ershen, fushen, qita   # 控制内存
 
     def number3(self):
         pass
@@ -84,7 +84,6 @@ class law:
     def number16(self):
         pass
 
-
     def preprocess(self):
         self.number2()
         self.number3()
@@ -102,5 +101,5 @@ class law:
         self.number15()
         self.number16()
 
-    def store()
-        pass
+    def store(self, new_path):
+        self.data.to_csv(new_path)
