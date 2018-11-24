@@ -1,10 +1,11 @@
-def getn(string):
-    words = pseg.cut(string)
-    name = []
-    for word, flag in words:
-        if flag == 'n':  # 人名词性为nr
-            name.append(word)
-    return(''.join(name))
+import re
+import numpy as np
+import pandas as pd
+import jieba.posseg as pseg
+#import os
+#import jieba
+
+
 
 file_path = "/Users/bailujia/Desktop/NLP/IP01.xlsx"
 alpha = 10
@@ -32,7 +33,7 @@ def ADBinfo(data, index):
     l1 = re.split(defender_tag, data['当事人'][index])  # 840 844
 
     proxy = re.compile(r'代理人(.*)')
-    legal = re.compile(r'法定代表人(.*)')
+    legal = re.compile(r'代表人(.*)')
     location = re.compile(r'住所地(.*)|住(.*)|地(.*)|地址(.*)')
     gender = re.compile("男|女")
     date_born = re.compile(r'\d+年\d+月\d+日')
@@ -54,10 +55,10 @@ def ADBinfo(data, index):
 
         flag = 0
         a = re.search(accuser_tag, mes)
-        if a is not None:
+        if a is not None: #1 表示原告信息
             flag = 1
             person = {}
-        else:
+        else:            #2 表示被告信息
             flag = 2
             person = {}
 
@@ -65,9 +66,9 @@ def ADBinfo(data, index):
 
             p = re.search(proxy, l2[i])
             le = re.search(legal, l2[i])
-            p_gender = re.findall(gender, l2[i])
-            p_birth = re.findall(date_born, l2[i])
-            p_location = re.findall(location, l2[i])
+            p_gender = re.findall(gender, l2[i]) #提取性别
+            p_birth = re.findall(date_born, l2[i])#提取出生日期
+            p_location = re.findall(location, l2[i])#提取地址
 
             if len(p_gender) > 0:
                 person['性别'] = ''.join(p_gender)
@@ -76,17 +77,18 @@ def ADBinfo(data, index):
             if len(p_location) > 0:
                 person['地址'] = ''.join(list(filter(lambda s: s is not '', p_location[0])))
 
-            leth = re.split("，", l2[i])
+            leth = re.split("，", l2[i]) #提取民族
             for etho in leth:
                 if re.search(ethic, etho) is not None:
                     person['民族'] = ''.join(etho)
-
+            #委托/诉讼代理人 信息
             if p is not None:
                 l4 = re.split("，", l2[i])
                 person['委托/诉讼代理人'] = ''.join(re.findall(proxy, l4[0]))
                 del (l4[0])
                 if len(l4) > 0:
                     person['委托/诉讼代理人公司/职位'] = ''.join(l4)
+            # 法定代表人 信息
             if le is not None:
                 l4 = re.split("，", l2[i])
                 person['法定代表人'] = ''.join(re.findall(legal, l4[0]))
@@ -112,17 +114,22 @@ def ADBinfo(data, index):
 def number10(data):
     data_len = len(data)
     information = []
-
     for i in range(data_len):
         # 显示进度
         if i % 100 == 0:
             print(i)
         info = {}
-        # 判断是否缺失
+         #判断是否缺失 很重要
         if pd.isna(data['当事人'][i]):
-            information.append(info)
-            continue
-            # 初始化字典 储存原告信息
+           information.append(info)
+           information.append({}) #空集合
+           continue
+
         information.append(ADBinfo(data, i))
 
     return (information)  # return a new pandas DataFrame
+
+basicinfomation = number10(data)
+file=open('/Users/bailujia/Desktop/NLP/basicinfomation.txt','w')
+file.write(str(basicinfomation));
+file.close()
