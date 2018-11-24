@@ -61,7 +61,12 @@ class read_law:
         pass
 
     def number9(self):
-        pass
+        '''
+        Klaus
+        ---
+        This function take turns "第三人" into one hot
+        '''
+        
 
     def number10(self):
         pass
