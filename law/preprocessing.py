@@ -15,6 +15,7 @@ class read_law:
     def number2(self):
         '''
         This function change '庭审程序' into one hot encodings
+        -- Klaus
         '''
         xingfabiangeng = np.zeros(self.data_len)
         yishen = np.zeros(self.data_len)
@@ -49,7 +50,52 @@ class read_law:
         pass
 
     def number5(self):
-        pass
+        '''
+            法院→省、市、级别，空值采用None填补
+            -- Xu Xiaojie
+        '''
+
+        level = []  # 法院级别
+        distinct = []  # 法院所在省
+        block = []  # 法院所在市区市
+
+        for x in self.data['法院']:
+            # 寻找省的字段，如果未找到，使用空值None填补
+            a = re.compile(r'.*省')
+            b = a.search(x)
+            if b == None:
+                distinct.append(None)
+            else:
+                distinct.append(b.group(0))
+                x = re.sub(b.group(0), '', x)#删掉省字段，方便寻找市字段
+
+            #找出市的字段，如果未找到，使用空值None填补
+            a = re.compile(r'.*市')
+            b = a.search(x)
+            if b == None:
+                block.append(None)
+            else:
+                block.append(b.group(0))
+
+            #找出级别的字段，如果未找到，使用空值None填补
+            a = re.compile(r'.级')
+            b = a.search(x)
+            if b == None:
+                level.append(None)
+            else:
+                level.append(b.group(0))
+
+        #创建字典，方便创建DataFrame
+        newdict={
+                    '法院所在省':distinct,
+                    '法院所在市':block,
+                    '法院等级':level
+                    }
+        #通过字典建立DataFrame，并合并
+        newdata = pd.DataFrame(newdict)
+        self.data = pd.concat([self.data, newdata], axis=1)
+
+        del newdata, level, distinct, block
 
     def number6(self):
         pass
@@ -66,7 +112,7 @@ class read_law:
         ---
         This function take turns "第三人" into one hot
         '''
-        
+
 
     def number10(self):
         pass
@@ -84,7 +130,43 @@ class read_law:
         pass
 
     def number15(self):
-        pass
+        '''
+        庭后告知 -- Xu Xiaojie
+        '''
+
+        final1 = []#是否为终审判决，是为1，不是为0
+        final2 = []#是否为终审裁定，是为1，不是为0
+
+        for x in self.data['庭后告知']:
+            if type(x) == type(np.nan):
+                final1.append(0)
+                final2.append(0)
+            else:
+                a = re.compile(r'.*为终审判决')
+                b = a.search(x)
+                if b == None:
+                    final1.append(0)
+                else:
+                    final1.append(1)
+
+                a = re.compile(r'.*为终审裁定')
+                b = a.search(x)
+                if b == None:
+                    final2.append(0)
+                else:
+                    final2.append(1)
+
+        #创建字典，方便创建DataFrame
+        newdict = {
+                    '是否为终审判决':final1,
+                    '是否为终审裁定':final2
+                    }
+
+        #通过字典建立DataFrame，并合并
+        newdata = pd.DataFrame(newdict)
+        self.data = pd.concat([self.data,newdata],axis=1)
+
+        del newdata, final1, final2, newdict
 
     def number16(self):
         pass
