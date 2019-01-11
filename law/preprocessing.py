@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np
 import re
+import law.utils
 import jieba
 import sklearn
+
 
 class read_law:
     def __init__(self, file_path):
@@ -11,6 +13,9 @@ class read_law:
         print("Read Data Successful...")
         self.data_len = len(self.data)
         print("This dataset has ", self.data_len, "rows of data.")
+
+        # 处理缺失值，全部用np.nan代替
+        self.data = self.data.fillna(np.nan)
 
     def number2(self):
         '''
@@ -40,8 +45,12 @@ class read_law:
         self.data['庭审程序_是否_二审'] = ershen
         self.data['庭审程序_是否_复核'] = fushen
         self.data['庭审程序_是否_其他'] = qita
+        print(xingfabiangeng)
+        print(yishen)
+        print(ershen)
+        print(qita)
 
-        del xingfabiangeng, yishen, ershen, fushen, qita   # 控制内存
+        del xingfabiangeng, yishen, ershen, fushen, qita  # 控制内存
 
     def number3(self):
         pass
@@ -67,9 +76,9 @@ class read_law:
                 distinct.append(None)
             else:
                 distinct.append(b.group(0))
-                x = re.sub(b.group(0), '', x)#删掉省字段，方便寻找市字段
+                x = re.sub(b.group(0), '', x)  # 删掉省字段，方便寻找市字段
 
-            #找出市的字段，如果未找到，使用空值None填补
+            # 找出市的字段，如果未找到，使用空值None填补
             a = re.compile(r'.*市')
             b = a.search(x)
             if b == None:
@@ -77,7 +86,7 @@ class read_law:
             else:
                 block.append(b.group(0))
 
-            #找出级别的字段，如果未找到，使用空值None填补
+            # 找出级别的字段，如果未找到，使用空值None填补
             a = re.compile(r'.级')
             b = a.search(x)
             if b == None:
@@ -85,22 +94,74 @@ class read_law:
             else:
                 level.append(b.group(0))
 
-        #创建字典，方便创建DataFrame
-        newdict={
-                    '法院所在省':distinct,
-                    '法院所在市':block,
-                    '法院等级':level
-                    }
-        #通过字典建立DataFrame，并合并
+        # 创建字典，方便创建DataFrame
+        newdict = {
+            '法院所在省': distinct,
+            '法院所在市': block,
+            '法院等级': level
+        }
+        # 通过字典建立DataFrame，并合并
         newdata = pd.DataFrame(newdict)
         self.data = pd.concat([self.data, newdata], axis=1)
 
         del newdata, level, distinct, block
 
     def number6(self):
-        pass
+        '''
+        分成年月日
+        :return:
+        '''
+        year = []  # 判决年份
+        month = []  # 判决月份
+        day = []  # 判决日期
+
+        for x in self.data['判决日期']:
+            # 寻找年的字段，如果未找到，使用空值None填补
+            a = re.compile(r'.*年')
+            b = a.search(str(x))
+            if b == None:
+                year.append(None)
+            else:
+                year.append(b.group(0))
+                x = re.sub(b.group(0), '', x)  # 删掉省字段，方便寻找月字段
+
+            # 找出月的字段，如果未找到，使用空值None填补
+            a1 = re.compile(r'.*月')
+            b1 = a1.search(str(x))
+            if b1 == None:
+                month.append(None)
+            else:
+                month.append(b1.group(0))
+                x = re.sub(b1.group(0), '', x)  # 删掉省字段，方便寻找日字段
+
+            # 找出日的字段，如果未找到，使用空值None填补
+            a2 = re.compile(r'.*日')
+            b2 = a2.search(str(x))
+            if b2 == None:
+                day.append(None)
+            else:
+                day.append(b2.group(0))
+
+        # 创建字典，方便创建DataFrame
+        newdict = {
+            '判决年份': year,
+            '判决月份': month,
+            '判决日期': day
+        }
+        # 通过字典建立DataFrame，并合并
+        newdata = pd.DataFrame(newdict)
+        self.data = pd.concat([self.data, newdata], axis=1)
+
+        del year, month, day
 
     def number7(self):
+        '''
+        :author: kh yuan
+        :return:
+        '''
+
+
+
         pass
 
     def number8(self):
@@ -112,7 +173,6 @@ class read_law:
         ---
         This function take turns "第三人" into one hot
         '''
-
 
     def number10(self):
         pass
@@ -127,15 +187,56 @@ class read_law:
         pass
 
     def number14(self):
-        pass
+        '''
+        #TODO 这一段有bug，result的那一部分，没有考虑到文本里没有“下”的情况。
+        :return:
+        '''
+        selected_data = self.data["判决结果"]
+        result = []  # 判决结果
+        basis = []  # 判决依据的条款
+
+        # law packages下载不成功，我就把函数写在这里了
+        for i in range(self.data_len):
+            if pd.isnull(selected_data.iloc[i]):
+                basis.append([])
+                continue
+            basis.append(law.utils.find_law_tiao_kuan_in_text(selected_data.iloc[i]))
+
+        # 改正这里
+        # 查找判决结果，通过“下：、”三层条件进行筛选，空缺殖用N/A进行填补
+        for i in range(self.data_len):
+            if type(selected_data[i]) is not type(np.nan):
+                for j in range(len(selected_data[i])):
+                    if selected_data[i][j] == '下':
+                        if selected_data[i][j + 1] == ':':
+                            if selected_data[i][j + 2] == '、':
+                                result.append(selected_data[i][j + 3:-1])
+                            else:
+                                result.append(selected_data[i][j + 2:-1])
+                    # 没有考虑到里面没有“下”的情况。
+            else:
+                result.append(np.nan)
+
+        print(len(basis),len(result))
+
+        newdict = {
+            '判决法条': basis,
+            '判决结果': result
+        }
+
+        # 通过字典建立DataFrame，并合并
+        newdata = pd.DataFrame(newdict)
+        self.data = pd.concat([self.data, newdata], axis=1)
+
+        del selected_data, result, basis, newdict, newdata
 
     def number15(self):
         '''
         庭后告知 -- Xu Xiaojie
         '''
 
-        final1 = []#是否为终审判决，是为1，不是为0
-        final2 = []#是否为终审裁定，是为1，不是为0
+        final1 = []  # 是否为终审判决，是为1，不是为0
+        final2 = []  # 是否为终审裁定，是为1，不是为0
 
         for x in self.data['庭后告知']:
             if type(x) == type(np.nan):
@@ -155,16 +256,17 @@ class read_law:
                     final2.append(0)
                 else:
                     final2.append(1)
-
-        #创建字典，方便创建DataFrame
+        print(len(final1))
+        print(len(final2))
+        # 创建字典，方便创建DataFrame
         newdict = {
-                    '是否为终审判决':final1,
-                    '是否为终审裁定':final2
-                    }
+            '是否为终审判决': final1,
+            '是否为终审裁定': final2
+        }
 
-        #通过字典建立DataFrame，并合并
+        # 通过字典建立DataFrame，并合并
         newdata = pd.DataFrame(newdict)
-        self.data = pd.concat([self.data,newdata],axis=1)
+        self.data = pd.concat([self.data, newdata], axis=1)
 
         del newdata, final1, final2, newdict
 
@@ -173,20 +275,42 @@ class read_law:
 
     def preprocess(self):
         self.number2()
+        print("#2 finished")
         self.number3()
+        print("#3 finished")
         self.number4()
+        print("#4 finished")
         self.number5()
+        print("#5 finished")
         self.number6()
+        print("#6 finished")
         self.number7()
+        print("#7 finished")
         self.number8()
+        print("#8 finished")
         self.number9()
+        print("#9 finished")
         self.number10()
+        print("#10 finished")
         self.number11()
+        print("#11 finished")
         self.number12()
+        print("#12 finished")
         self.number13()
-        self.number14()
+        print("#13 finished")
+        # self.number14()
+        # print("#14 finished")
         self.number15()
+        print("#15 finished")
         self.number16()
+        print("#16 finished")
 
     def store(self, new_path):
         self.data.to_csv(new_path)
+
+
+if __name__ == "__main__":
+    test = read_law("/home/klaus/Documents/Project/sufelaw2019/data/Finance01.xlsx")
+    test.preprocess()
+    print(test.data)
+    test.store("/home/klaus/Documents/Project/sufelaw2019/data/preFinance01.csv")

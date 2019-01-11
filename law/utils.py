@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+import numpy as np
 
 
 def find_law_in_series(series):
@@ -59,7 +60,7 @@ def find_law_tiao_kuan_in_text(string):
         # We do this because it's hard to match the law and its tiaokuan.
         for j in range(law_length):
             thislaw = law_set.pop()
-            tiao_finder = re.compile(thislaw+r"第.*?条.*?(?:《|。|$)")
+            tiao_finder = re.compile(thislaw + r"第.*?条.*?(?:《|。|$)")
             tiao = re.findall(tiao_finder, string)
             # Notice that there might be same laws many times
 
@@ -75,7 +76,7 @@ def find_law_tiao_kuan_in_text(string):
                         real_tiao_list.extend(real_tiao)
 
                         for p in range(len(real_tiao)):
-                            kuan_finder = re.compile(real_tiao[p]+"第.{1,5}款")
+                            kuan_finder = re.compile(real_tiao[p] + "第.{1,5}款")
                             kuan = re.findall(kuan_finder, tiao[k])
                             kuan_list.extend(kuan)
             final_list.append([thislaw, real_tiao_list, kuan_list])
@@ -86,6 +87,33 @@ def find_something_with_pre(pre, find, string):
     '''
     pre add find - all strings
     '''
-    crit = re.compile(pre+".*?"+find)
+    crit = re.compile(pre + ".*?" + find)
     all_result = re.findall(crit, string)
     return all_result[0]
+
+
+def classify_subject_in_text(text):
+    '''
+    这个函数，输入一段文字后，判断其中的法人个数、检察院个数等。
+    # todo 可以改的更加完善一点；现在的条件还没办法覆盖全部。
+    :param text:
+    :return:
+    '''
+    output = [0, 0, 0, 0]  # 自然人 法人 检察院 其他
+    if text == np.nan:
+        return output
+
+    namelist = text.split('、')
+    for name in namelist:
+        if not (re.search('公司', name) == None):  # 检查是否为法人
+            output[1] += 1
+        elif not (re.search('检察院', name) == None):  # 检查是否为检察院
+            output[2] += 1
+        elif not (re.search('厂', name) == None) and len(name) > 4:  # 检查是否为法人
+            output[1] += 1
+        elif len(name) <= 4:  # 检查是否为自然人。优化算法时可以把这个提到第一个来检查
+            output[0] += 1
+        else:
+            output[3] += 1  # 检查是否为其他，一般是外国人或名字中不带公司二字的法人
+            print(name)
+    return output
