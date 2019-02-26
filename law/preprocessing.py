@@ -155,24 +155,13 @@ class read_law:
         del year, month, day
 
     def number7(self):
-        '''
-        :author: kh yuan
-        :return:
-        '''
-
-
-
         pass
 
     def number8(self):
         pass
 
     def number9(self):
-        '''
-        Klaus
-        ---
-        This function take turns "第三人" into one hot
-        '''
+        pass
 
     def number10(self):
         pass
