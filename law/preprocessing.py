@@ -247,48 +247,66 @@ class read_law:
         pass
 
     def number14(self):
-        '''
-        #TODO 这一段有bug，result的那一部分，没有考虑到文本里没有“下”的情况。
-        :return:
-        '''
         selected_data = self.data["判决结果"]
-        result = []  # 判决结果
-        basis = []  # 判决依据的条款
+        data_len = len(selected_data)
 
-        # law packages下载不成功，我就把函数写在这里了
-        for i in range(self.data_len):
+        basis=[]#判决依据的条款
+        result=["N/A"]*data_len#判决结果
+        charge=["N/A"]*data_len
+        sentence=["N/A"]*data_len
+
+        for i in range(data_len):
             if pd.isnull(selected_data.iloc[i]):
-                basis.append([])
-                continue
-            basis.append(law.utils.find_law_tiao_kuan_in_text(selected_data.iloc[i]))
+               basis.append([])
+               continue
+            basis.append(find_law_tiao_kuan_in_text(selected_data.iloc[i]))
 
-        # 改正这里
-        # 查找判决结果，通过“下：、”三层条件进行筛选，空缺殖用N/A进行填补
-        for i in range(self.data_len):
-            if type(selected_data[i]) is not type(np.nan):
+        #  查找判决结果，空缺值用N/A进行填补
+        for i in range(selected_data.shape[0]):
+            if type(selected_data[i]) is not float:
                 for j in range(len(selected_data[i])):
-                    if selected_data[i][j] == '下':
-                        if selected_data[i][j + 1] == ':':
-                            if selected_data[i][j + 2] == '、':
-                                result.append(selected_data[i][j + 3:-1])
+                    if ("判决" in selected_data[i][j-4:j+4] or "裁定" in selected_data[i][j-4:j+4]) and ("法院" not in selected_data[i][j-10:j+4]):
+                        if selected_data[i][j] == ':':
+                            if selected_data[i][j+1] == '、':
+                                result[i] = selected_data[i][j+2:-1]
                             else:
-                                result.append(selected_data[i][j + 2:-1])
-                    # 没有考虑到里面没有“下”的情况。
+                                result[i] = selected_data[i][j+1:-1]
             else:
-                result.append(np.nan)
+                result[i] = "N/A"
 
-        print(len(basis),len(result))
+        for i in range(selected_data.shape[0]):
+            if type(selected_data[i]) is not float:
+                for j in range(len(selected_data[i])):
+                    if "费" in selected_data[i][j+1:j+10]:
+                        if selected_data[i][j-1] == '、':
+                            if selected_data[i][j] == '。':
+                                charge[i] = selected_data[i][j+1:-1]
+                            else:
+                                charge[i]=selected_data[i][j:-1]
+            else:
+                charge[i]="N/A"
+
+        for i in range(selected_data.shape[0]):
+            if type(result[i]) is not float:
+                for j in range(len(result[i])):
+                    if result[i][j-1] == '、':
+                        if result[i][j] == '。':
+                            sentence[i] = result[i][0:j-2]
+                        else:
+                            sentence[i] = result[i][0:j-1]
+            else:
+                sentence[i] = "N/A"
 
         newdict = {
-            '判决法条': basis,
-            '判决结果': result
-        }
+                    '判决法条': basis,
+                    '赔偿结果': charge
+                    }
 
         # 通过字典建立DataFrame，并合并
         newdata = pd.DataFrame(newdict)
-        self.data = pd.concat([self.data, newdata], axis=1)
+        self.data = pd.concat([data,newdata], axis=1)
 
-        del selected_data, result, basis, newdict, newdata
+        del newdata, newdict, basis,  result, charge, sentence
 
     def number15(self):
         '''
