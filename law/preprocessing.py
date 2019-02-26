@@ -1,9 +1,11 @@
 import pandas as pd
 import numpy as np
 import re
+from law.utils import *
 import law.utils
 import jieba
 import sklearn
+import jieba.posseg as pseg
 
 
 class read_law:
@@ -173,13 +175,67 @@ class read_law:
         pass
 
     def number8(self):
-        pass
+        # http://www.sohu.com/a/249531167_656612
+        company = re.compile(r'.*?公司')
+        natural_person = np.zeros(self.data_len)
+        legal_person = np.zeros(self.data_len)
+        other_person = np.zeros(self.data_len)
+        for i in range(self.data_len):
+            # 显示进度
+            if i % 100 == 0:
+                print(i)
+            # 判断是否缺失
+            if pd.isna(self.data['被告'][i]):
+                continue
+            # 判断是否有字符串中是否有公司
+            if re.search(company, self.data['被告'][i]) is not None:
+                legal_person[i] = 1
+            # 查找名字：按标点分割后长度小于等于4，不含有公司（不考虑外国人和少数民族）
+            l = re.split('、', self.data['被告'][i])
+            l1 = list(filter(lambda s: len(s) <= 4, l))
+            l2 = list(filter(lambda s: (re.search(company, s)) is None, l1))
+            if len(l2) > 0:
+                natural_person[i] = 1
+            # 查找其他：按标点分割后长度大于4，不含有公司，且不含有谓语动词（数据有时会将起诉原因一并放入被告栏）
+            l3 = list(filter(lambda s: len(s) > 4, l))
+            l4 = list(filter(lambda s: (re.search(company, s)) is None, l3))
+            if len(l4) > 0:
+                other_person[i] = 1
+                for mes in l4:
+                    words = pseg.cut(mes)
+                    verbs = []
+                    for word, flag in words:
+                        if flag == 'v':  # 人名词性为nr
+                            other_person[i] = 0
+                            break
+
+        self.data['被告_是否_自然人'] = natural_person
+        self.data['被告_是否_法人'] = legal_person
+        self.data['被告_是否_其他'] = other_person
+
+        del natural_person, legal_person, other_person  # 控制内存
 
     def number9(self):
         pass
 
-    def number10(self):
-        pass
+    def number10(data):
+        data_len = len(data)
+        information = []
+        for i in range(data_len):
+            # 显示进度
+            if i % 100 == 0:
+                print(i)
+            info = {}
+             #判断是否缺失 很重要
+            if pd.isna(data['当事人'][i]):
+               information.append(info)
+               information.append({}) #空集合
+               continue
+
+            information.append(ADBinfo(data, i))
+        self.data['number10'] = information
+
+        del information, info  # 控制内存
 
     def number11(self):
         pass
