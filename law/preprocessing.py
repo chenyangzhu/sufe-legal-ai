@@ -56,7 +56,22 @@ class read_law:
         pass
 
     def number4(self):
-        pass
+        '''
+        This function change '文书类型' into one hot encodings
+        '''
+        panjueshu = np.zeros(self.data_len)
+        caidingshu = np.zeros(self.data_len)
+
+        for i in range(self.data_len):
+            if "判决书" in self.data['文书类型'][i]:
+                panjueshu[i] += 1
+            if "裁定书" in self.data['文书类型'][i]:
+                caidingshu[i] += 1
+
+        self.data['文书类型_是否_判决书'] = panjueshu
+        self.data['文书类型_是否_裁定书'] = caidingshu
+
+        del panjueshu, caidingshu  # 控制内存
 
     def number5(self):
         '''
