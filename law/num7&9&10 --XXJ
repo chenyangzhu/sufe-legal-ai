@@ -1,0 +1,80 @@
+def number7(self):#四列 one hot 检察院，法人，自然人，其他
+    '''根据属性“原告”判断有无检察院，法人，自然人，其他（有：1；无：0）
+    ***概念分析：检查院也属于法人，所以如果检察院为1，那么法人也为1。
+    基于假设：
+    -检察院的名字最后含有“检察院”三个字，则可以根据属性“原告”切词后是否有“检察院”字样的子集进行判断
+    -自然人的名字不超过四个字，则可以根据属性“原告”切词后是否有少于四字的子集进行判断
+    -法人：如果有检察院；则自然有法人；如果含有“公司”字样，同样可以判定有法人
+    -其他：如果切词所得的结果不满足上述三个任意条件，则属于其他
+    --Xu Xiaojie'''
+
+    #初始化新列
+    self.data['原告_是否_检察院'] = 0
+    self.data['原告_是否_法人'] = 0
+    self.data['原告_是否_自然人'] = 0
+    self.data['原告_是否_其他'] = 0
+
+    #开始处理
+    pattern = r'(?::|：|。|、|\s|，|,)\s*'#分词符号匹配，包括中英文冒号，句号，顿号，空格等
+    jcy_pattern = re.compile(r'.*检察院')#编译检察院的关键字匹配
+    gs_pattern = re.compile(r'.*公司')#编译公司的关键字匹配
+    for i in range(len(self.data['原告'])):
+        #如果是空值，直接跳过
+        if pd.isna(self.data['原告'][i]):
+            continue
+        #如果非空，那么开始分词
+        self.data['原告'][i] = re.sub(' ','',self.data['原告'][i])#先把每行数据的空格去掉
+        result_list = re.split(pattern, self.data['原告'][i])#分词后得到的是一个列表
+        for x in result_list:
+            temp1 = jcy_pattern.findall(x)#temp1返回的是list，里面的元素为包含'检察院'字样的元素
+            temp2 = gs_pattern.findall(x)#temp2返回的是list，里面的元素为包含'公司'字样的元素
+            #判断是否有检察院
+            if len(temp1) != 0:#list非空，说明有检察院
+                self.data['原告_是否_检察院'][i] = 1
+            #判定是否有自然人
+            if (0 < len(x) <= 4):
+                self.data['原告_是否_自然人'][i] = 1
+            #判定是否有法人
+            if ((len(temp1) != 0) or len(temp2) !=0):
+                self.data['原告_是否_法人'][i] = 1
+            #判定是否有其他
+            if (len(x) > 4 and len(temp1) == 0 and len(temp2) ==0):
+                self.data['原告_是否_其他'][i] = 1
+
+def number9(self):
+    '''根据属性“第三人”判断有无自然人（有：1；无：0）
+    基于假设：自然人的名字不超过四个字，则可以根据属性“第三人”切词后是否有少于四字的子集进行判断
+    --Xu Xiaojie'''
+
+    self.data['第三人_有无自然人'] = 0#初始化新的列
+    pattern = r'(?::|：|。|、|\s|，|,)\s*'#分词符号匹配，包括中英文冒号，句号，顿号，空格等
+    for i in range(len(self.data['第三人'])):
+        #如果是空值，直接跳过
+        if pd.isna(self.data['第三人'][i]):
+            continue
+        #如果非空，那么开始分词
+        result_list = re.split(pattern, self.data['第三人'][i])#得到的是一个列表
+        #遍历分词列表中的每个元素，如果有长度小于等4大于0的字符串，则说明有自然人
+        for x in result_list:
+            if (0 < len(x) <= 4):
+                self.data['第三人_有无自然人'][i] = 1
+                break#找到了就可以退出了，不需要遍历剩下的列表元素，节省时间
+
+def number10(self):
+    data_len = len(self.data)
+    information = []
+    for i in range(data_len):
+        # 显示进度
+        if i % 100 == 0:
+            print(i)
+        info = {}
+         #判断是否缺失 很重要
+        if pd.isna(self.data['当事人'][i]):
+           information.append(info)
+           information.append({}) #空集合
+           continue
+
+        information.append(ADBinfo(self.data, i))
+    self.data['number10'] = information
+
+    del information, info  # 控制内存
