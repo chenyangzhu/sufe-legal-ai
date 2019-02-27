@@ -166,4 +166,3 @@ def Entity_Extractor(String):
     df_natural_person, df_legal_person, df_other_person  # 控制内存
 
     return data  # return a new pandas DataFrame
-

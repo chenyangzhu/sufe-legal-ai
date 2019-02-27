@@ -5,7 +5,6 @@ from law.utils import *
 import law.utils
 import jieba.posseg as pseg
 
-
 class read_law:
     def __init__(self, file_path):
         self.file_path = file_path
