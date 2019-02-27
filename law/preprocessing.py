@@ -3,8 +3,6 @@ import numpy as np
 import re
 from law.utils import *
 import law.utils
-import jieba
-import sklearn
 import jieba.posseg as pseg
 
 
@@ -282,17 +280,16 @@ class read_law:
             if i % 100 == 0:
                 print(i)
             info = {}
-             #判断是否缺失 很重要
+             # 判断是否缺失 很重要
             if pd.isna(self.data['当事人'][i]):
-               information.append(info)
-               information.append({}) #空集合
-               continue
+                information.append(info)
+                information.append({}) # 空集合
+                continue
 
             information.append(ADBinfo(self.data, i))
         self.data['number10'] = information
 
         del information, info  # 控制内存
-
 
     def number11(self):
         pass
@@ -361,7 +358,7 @@ class read_law:
 
         # 通过字典建立DataFrame，并合并
         newdata = pd.DataFrame(newdict)
-        self.data = pd.concat([data,newdata], axis=1)
+        self.data = pd.concat([data, newdata], axis=1)
 
         del newdata, newdict, basis,  result, charge, sentence
 
@@ -433,8 +430,8 @@ class read_law:
         print("#12 finished")
         self.number13()
         print("#13 finished")
-        # self.number14()
-        # print("#14 finished")
+        self.number14()
+        print("#14 finished")
         self.number15()
         print("#15 finished")
         self.number16()
