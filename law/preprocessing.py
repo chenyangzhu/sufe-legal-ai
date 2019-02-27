@@ -441,7 +441,7 @@ class read_law:
 
 
 if __name__ == "__main__":
-    test = read_law("../data/Finance01.xlsx")
+    test = read_law("../sample_data/Finance01.xlsx")
     test.preprocess()
     print(test.data)
-    test.store("../data/preFinance01.csv")
+    test.store("../sample_data/preFinance01.csv")
