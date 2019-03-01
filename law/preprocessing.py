@@ -297,7 +297,44 @@ class read_law:
         pass
 
     def number13(self):
-        pass
+        '''根据属性“法院意见”抓取出如下信息：
+        -案件是否涉及赔偿金额
+        -案件涉及的法数
+        -案件涉及的条数
+        -案件涉及的款数
+                --Xu Xiaojie'''
+        from law.utils import find_law_tiao_kuan_in_text
+
+        #初始化新的属性列
+        data['法院意见_是否涉及金额'] = 0
+        data['法院意见_涉及的法数'] = 0
+        data['法院意见_涉及的条数'] = 0
+        data['法院意见_涉及的款数'] = 0
+
+
+        money_pattern = re.compile(r'[0-9]+元')#是否涉及金额匹配
+        #先处理法、条、款数
+        for i in range(len(data['法院意见'])):
+            if not pd.isna(data['法院意见'][i]):#如果非空
+                temp = find_law_tiao_kuan_in_text(data['法院意见'][i])#返回的是一个有法、条、款的列表
+                if len(temp) > 0:
+                    data['法院意见_涉及的法数'][i] = len(temp)#法数
+                    #条数，款数
+                    sum_tiao = 0
+                    sum_kuan = 0
+                    for j in range(len(temp)):
+                        sum_tiao += len(temp[j][1])#加和条数
+                        sum_kuan += len(temp[j][2])#加和款数
+                    data['法院意见_涉及的条数'][i] = sum_tiao
+                    data['法院意见_涉及的款数'][i] = sum_kuan
+
+        #再处理金额问题
+        for i in range(len(data['法院意见'])):
+            if not pd.isna(data['法院意见'][i]):#如果非空
+                temp1 = money_pattern.findall(data['法院意见'][i])#temp1返回的是list，里面的元素为包含'XX元'字样的元素
+                if len(temp1) == 0:#没有‘元’字样直接跳过
+                    continue
+                data['法院意见_是否涉及金额'][i]= 1#不满足上述条件，则涉及金额
 
     def number14(self):
         selected_data = self.data["判决结果"]
