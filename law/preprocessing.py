@@ -5,6 +5,7 @@ from law.utils import *
 import law.utils
 import jieba.posseg as pseg
 
+
 class read_law:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -168,7 +169,7 @@ class read_law:
 
         del year, month, day
 
-    def number7(self):#四列 one hot 检察院，法人，自然人，其他
+    def number7(self):  # 四列 one hot 检察院，法人，自然人，其他
         '''根据属性“原告”判断有无检察院，法人，自然人，其他（有：1；无：0）
         ***概念分析：检查院也属于法人，所以如果检察院为1，那么法人也为1。
         基于假设：
@@ -178,37 +179,37 @@ class read_law:
         -其他：如果切词所得的结果不满足上述三个任意条件，则属于其他
         --Xu Xiaojie'''
 
-        #初始化新列
+        # 初始化新列
         self.data['原告_是否_检察院'] = 0
         self.data['原告_是否_法人'] = 0
         self.data['原告_是否_自然人'] = 0
         self.data['原告_是否_其他'] = 0
 
-        #开始处理
-        pattern = r'(?::|：|。|、|\s|，|,)\s*'#分词符号匹配，包括中英文冒号，句号，顿号，空格等
-        jcy_pattern = re.compile(r'.*检察院')#编译检察院的关键字匹配
-        gs_pattern = re.compile(r'.*公司')#编译公司的关键字匹配
+        # 开始处理
+        pattern = r'(?::|：|。|、|\s|，|,)\s*'  # 分词符号匹配，包括中英文冒号，句号，顿号，空格等
+        jcy_pattern = re.compile(r'.*检察院')  # 编译检察院的关键字匹配
+        gs_pattern = re.compile(r'.*公司')  # 编译公司的关键字匹配
         for i in range(len(self.data['原告'])):
-            #如果是空值，直接跳过
+            # 如果是空值，直接跳过
             if pd.isna(self.data['原告'][i]):
                 continue
-            #如果非空，那么开始分词
-            self.data['原告'][i] = re.sub(' ','',self.data['原告'][i])#先把每行数据的空格去掉
-            result_list = re.split(pattern, self.data['原告'][i])#分词后得到的是一个列表
+            # 如果非空，那么开始分词
+            self.data['原告'][i] = re.sub(' ', '', self.data['原告'][i])  # 先把每行数据的空格去掉
+            result_list = re.split(pattern, self.data['原告'][i])  # 分词后得到的是一个列表
             for x in result_list:
-                temp1 = jcy_pattern.findall(x)#temp1返回的是list，里面的元素为包含'检察院'字样的元素
-                temp2 = gs_pattern.findall(x)#temp2返回的是list，里面的元素为包含'公司'字样的元素
-                #判断是否有检察院
-                if len(temp1) != 0:#list非空，说明有检察院
+                temp1 = jcy_pattern.findall(x)  # temp1返回的是list，里面的元素为包含'检察院'字样的元素
+                temp2 = gs_pattern.findall(x)  # temp2返回的是list，里面的元素为包含'公司'字样的元素
+                # 判断是否有检察院
+                if len(temp1) != 0:  # list非空，说明有检察院
                     self.data['原告_是否_检察院'][i] = 1
-                #判定是否有自然人
+                # 判定是否有自然人
                 if (0 < len(x) <= 4):
                     self.data['原告_是否_自然人'][i] = 1
-                #判定是否有法人
-                if ((len(temp1) != 0) or len(temp2) !=0):
+                # 判定是否有法人
+                if ((len(temp1) != 0) or len(temp2) != 0):
                     self.data['原告_是否_法人'][i] = 1
-                #判定是否有其他
-                if (len(x) > 4 and len(temp1) == 0 and len(temp2) ==0):
+                # 判定是否有其他
+                if (len(x) > 4 and len(temp1) == 0 and len(temp2) == 0):
                     self.data['原告_是否_其他'][i] = 1
 
     def number8(self):
@@ -257,14 +258,14 @@ class read_law:
         基于假设：自然人的名字不超过四个字，则可以根据属性“第三人”切词后是否有少于四字的子集进行判断
         --Xu Xiaojie'''
 
-        self.data['第三人_有无自然人'] = 0 # 初始化新的列
-        pattern = r'(?::|：|。|、|\s|，|,)\s*' # 分词符号匹配，包括中英文冒号，句号，顿号，空格等
+        self.data['第三人_有无自然人'] = 0  # 初始化新的列
+        pattern = r'(?::|：|。|、|\s|，|,)\s*'  # 分词符号匹配，包括中英文冒号，句号，顿号，空格等
         for i in range(len(self.data['第三人'])):
             # 如果是空值，直接跳过
             if pd.isna(self.data['第三人'][i]):
                 continue
             # 如果非空，那么开始分词
-            result_list = re.split(pattern, self.data['第三人'][i]) # 得到的是一个列表
+            result_list = re.split(pattern, self.data['第三人'][i])  # 得到的是一个列表
             # 遍历分词列表中的每个元素，如果有长度小于等4大于0的字符串，则说明有自然人
             for x in result_list:
                 if (0 < len(x) <= 4):
@@ -279,10 +280,10 @@ class read_law:
             if i % 100 == 0:
                 print(i)
             info = {}
-             # 判断是否缺失 很重要
+            # 判断是否缺失 很重要
             if pd.isna(self.data['当事人'][i]):
                 information.append(info)
-                information.append({}) # 空集合
+                information.append({})  # 空集合
                 continue
 
             information.append(ADBinfo(self.data, i))
@@ -303,100 +304,99 @@ class read_law:
         -案件涉及的条数
         -案件涉及的款数
                 --Xu Xiaojie'''
-        from law.utils import find_law_tiao_kuan_in_text
 
-        #初始化新的属性列
+        #  初始化新的属性列
         data['法院意见_是否涉及金额'] = 0
         data['法院意见_涉及的法数'] = 0
         data['法院意见_涉及的条数'] = 0
         data['法院意见_涉及的款数'] = 0
 
-
-        money_pattern = re.compile(r'[0-9]+元')#是否涉及金额匹配
-        #先处理法、条、款数
+        money_pattern = re.compile(r'[0-9]+元')  # 是否涉及金额匹配
+        #  先处理法、条、款数
         for i in range(len(data['法院意见'])):
-            if not pd.isna(data['法院意见'][i]):#如果非空
-                temp = find_law_tiao_kuan_in_text(data['法院意见'][i])#返回的是一个有法、条、款的列表
+            if not pd.isna(data['法院意见'][i]):  # 如果非空
+                temp = find_law_tiao_kuan_in_text(data['法院意见'][i])  # 返回的是一个有法、条、款的列表
                 if len(temp) > 0:
-                    data['法院意见_涉及的法数'][i] = len(temp)#法数
-                    #条数，款数
+                    data['法院意见_涉及的法数'][i] = len(temp)  # 法数
+                    # 条数，款数
                     sum_tiao = 0
                     sum_kuan = 0
                     for j in range(len(temp)):
-                        sum_tiao += len(temp[j][1])#加和条数
-                        sum_kuan += len(temp[j][2])#加和款数
+                        sum_tiao += len(temp[j][1])  # 加和条数
+                        sum_kuan += len(temp[j][2])  # 加和款数
                     data['法院意见_涉及的条数'][i] = sum_tiao
                     data['法院意见_涉及的款数'][i] = sum_kuan
 
-        #再处理金额问题
+        # 再处理金额问题
         for i in range(len(data['法院意见'])):
-            if not pd.isna(data['法院意见'][i]):#如果非空
-                temp1 = money_pattern.findall(data['法院意见'][i])#temp1返回的是list，里面的元素为包含'XX元'字样的元素
-                if len(temp1) == 0:#没有‘元’字样直接跳过
+            if not pd.isna(data['法院意见'][i]):  # 如果非空
+                temp1 = money_pattern.findall(data['法院意见'][i])  # temp1返回的是list，里面的元素为包含'XX元'字样的元素
+                if len(temp1) == 0:  # 没有‘元’字样直接跳过
                     continue
-                data['法院意见_是否涉及金额'][i]= 1#不满足上述条件，则涉及金额
+                data['法院意见_是否涉及金额'][i] = 1  # 不满足上述条件，则涉及金额
 
     def number14(self):
         selected_data = self.data["判决结果"]
         data_len = len(selected_data)
 
-        basis=[]#判决依据的条款
-        result=["N/A"]*data_len#判决结果
-        charge=["N/A"]*data_len
-        sentence=["N/A"]*data_len
+        basis = []  # 判决依据的条款
+        result = ["N/A"] * data_len  # 判决结果
+        charge = ["N/A"] * data_len
+        sentence = ["N/A"] * data_len
 
         for i in range(data_len):
             if pd.isnull(selected_data.iloc[i]):
-               basis.append([])
-               continue
+                basis.append([])
+                continue
             basis.append(find_law_tiao_kuan_in_text(selected_data.iloc[i]))
 
         #  查找判决结果，空缺值用N/A进行填补
         for i in range(selected_data.shape[0]):
             if type(selected_data[i]) is not float:
                 for j in range(len(selected_data[i])):
-                    if ("判决" in selected_data[i][j-4:j+4] or "裁定" in selected_data[i][j-4:j+4]) and ("法院" not in selected_data[i][j-10:j+4]):
+                    if ("判决" in selected_data[i][j - 4:j + 4] or "裁定" in selected_data[i][j - 4:j + 4]) and (
+                            "法院" not in selected_data[i][j - 10:j + 4]):
                         if selected_data[i][j] == ':':
-                            if selected_data[i][j+1] == '、':
-                                result[i] = selected_data[i][j+2:-1]
+                            if selected_data[i][j + 1] == '、':
+                                result[i] = selected_data[i][j + 2:-1]
                             else:
-                                result[i] = selected_data[i][j+1:-1]
+                                result[i] = selected_data[i][j + 1:-1]
             else:
                 result[i] = "N/A"
 
         for i in range(selected_data.shape[0]):
             if type(selected_data[i]) is not float:
                 for j in range(len(selected_data[i])):
-                    if "费" in selected_data[i][j+1:j+10]:
-                        if selected_data[i][j-1] == '、':
+                    if "费" in selected_data[i][j + 1:j + 10]:
+                        if selected_data[i][j - 1] == '、':
                             if selected_data[i][j] == '。':
-                                charge[i] = selected_data[i][j+1:-1]
+                                charge[i] = selected_data[i][j + 1:-1]
                             else:
-                                charge[i]=selected_data[i][j:-1]
+                                charge[i] = selected_data[i][j:-1]
             else:
-                charge[i]="N/A"
+                charge[i] = "N/A"
 
         for i in range(selected_data.shape[0]):
             if type(result[i]) is not float:
                 for j in range(len(result[i])):
-                    if result[i][j-1] == '、':
+                    if result[i][j - 1] == '、':
                         if result[i][j] == '。':
-                            sentence[i] = result[i][0:j-2]
+                            sentence[i] = result[i][0:j - 2]
                         else:
-                            sentence[i] = result[i][0:j-1]
+                            sentence[i] = result[i][0:j - 1]
             else:
                 sentence[i] = "N/A"
 
         newdict = {
-                    '判决法条': basis,
-                    '赔偿结果': charge
-                    }
+            '判决法条': basis,
+            '赔偿结果': charge
+        }
 
         # 通过字典建立DataFrame，并合并
         newdata = pd.DataFrame(newdict)
         self.data = pd.concat([data, newdata], axis=1)
 
-        del newdata, newdict, basis,  result, charge, sentence
+        del newdata, newdict, basis, result, charge, sentence
 
     def number15(self):
         '''

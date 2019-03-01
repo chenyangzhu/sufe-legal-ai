@@ -4,9 +4,9 @@ import numpy as np
 import jieba.posseg as pseg
 import jieba
 
-entity_ac = np.array(('原告','上诉人','申请人'))
-entity_df = np.array(('被告','被上诉人','被申请人'))
-entity = np.vstack((entity_ac,entity_df))
+entity_ac = np.array(('原告', '上诉人', '申请人'))
+entity_df = np.array(('被告', '被上诉人', '被申请人'))
+entity = np.vstack((entity_ac, entity_df))
 
 
 ### Ultimate function we need is Entity_Extractor()
@@ -14,35 +14,36 @@ entity = np.vstack((entity_ac,entity_df))
 def StruStr(String):
     pattern = ':|：|。|、，'
     result_list = re.split(pattern, String)
-    accuser=[]
+    accuser = []
     defender = []
     for j in range(len(result_list)):
         for i in range(entity.shape[1]):
-            if re.search(re.compile("[^!被]"+entity[0,i])," "+result_list[j]) and len(result_list[j]) <= len(entity[1,i])+1:
-                accuser.append(result_list[j+1])
-            elif re.search(entity[1,i],result_list[j]) and len(result_list[j]) <= len(entity[0,i]) + 2:
+            if re.search(re.compile("[^!被]" + entity[0, i]), " " + result_list[j]) and len(result_list[j]) <= len(
+                    entity[1, i]) + 1:
+                accuser.append(result_list[j + 1])
+            elif re.search(entity[1, i], result_list[j]) and len(result_list[j]) <= len(entity[0, i]) + 2:
                 defender.append(result_list[j + 1])
-    return(accuser,defender)
+    return (accuser, defender)
 
 
-#非结构化语句
+# 非结构化语句
 def NatuStr(String):
     pattern = r',|。|，|；'
     result_list = re.split(pattern, String)
-    accuser=[]
+    accuser = []
     defender = []
     for j in range(len(result_list)):
         for i in range(entity.shape[1]):
-            s0 = re.search(re.compile("[^!被]"+entity[0,i])," "+result_list[j])
-            s1 = re.search(entity[1,i],result_list[j])
+            s0 = re.search(re.compile("[^!被]" + entity[0, i]), " " + result_list[j])
+            s1 = re.search(entity[1, i], result_list[j])
             if s0 and s1:
                 continue
-            elif s0 and len(result_list[j]) >= len(entity[1,i])+1:
-                accuser.append(re.sub(entity[0,i],"",result_list[j]))
-            elif s1 and len(result_list[j]) >= len(entity[0,i])+1:
-                defender.append(re.sub(entity[1,i],"",result_list[j]))
+            elif s0 and len(result_list[j]) >= len(entity[1, i]) + 1:
+                accuser.append(re.sub(entity[0, i], "", result_list[j]))
+            elif s1 and len(result_list[j]) >= len(entity[0, i]) + 1:
+                defender.append(re.sub(entity[1, i], "", result_list[j]))
             ##如果有被上诉人应该忽略被告 因为被告指的是原审
-    return(accuser,defender)
+    return (accuser, defender)
 
 
 def OneStr(String):
