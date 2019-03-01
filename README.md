@@ -1,5 +1,27 @@
 # sufelaw2019
 
+## 模型思路
+
+- SVD 分解
+
+  - 行：案件 列：特征
+
+  - 对于共线性的解释 (奇异值小的）
+  - 可以预测没有观测的位置的取值
+
+- logistic 回归（筛选变量之后）可以尝试其他连接函数
+  先用主成分分解看变量相依关系
+
+- 贝叶斯网络-> conditional probability between feature
+
+  可能要先做特征筛选
+
+  实现方法
+
+   https://site.douban.com/182577/widget/notes/12817482/note/273585095/
+
+  R包 gRain bnlearn
+
 
 # law package 介绍
 
