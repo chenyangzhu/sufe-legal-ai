@@ -22,7 +22,10 @@ def find_law_in_series(series):
         if pd.isnull(series.iloc[i]):
             findings.append([])
             continue
-        findings.append(find_law_tiao_kuan_in_text(series.iloc[i]))
+        try:
+            findings.append(find_law_tiao_kuan_in_text(series.iloc[i]))
+        except:
+            findings.append([])
     return findings
 
 
