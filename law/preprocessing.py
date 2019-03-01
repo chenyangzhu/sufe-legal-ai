@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import re
 from law.utils import *
-import law.utils
 import jieba.posseg as pseg
 
 
