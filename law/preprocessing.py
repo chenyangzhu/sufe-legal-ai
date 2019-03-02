@@ -292,7 +292,7 @@ class read_law:
 
     def number11(self):
         types=[] #程序类别
-        #money=[]
+        money=[]
         for x in self.data['庭审程序说明']: #这里上传的时候要改成self.data['庭审程序说明']
             #print(x)
             if str(x)=='nan' or re.search('[0-9]+元',x)==None:
