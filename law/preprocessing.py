@@ -291,7 +291,61 @@ class read_law:
         del information, info  # 控制内存
 
     def number11(self):
-        pass
+        types=[] #程序类别
+        #money=[]
+        for x in self.data['庭审程序说明']: #这里上传的时候要改成self.data['庭审程序说明']
+            #print(x)
+            if str(x)=='nan' or re.search('[0-9]+元',x)==None:
+                money.append(0)
+            else:
+                money.append(1)
+            if str(x)=='nan':
+                types.append('空白')
+            elif not(re.search('不宜在互联网公布|涉及国家秘密的|未成年人犯罪的',x)==None):
+                types.append('不公开')
+            elif not(re.search('以调解方式结案的',x)==None):
+                types.append('调解结案')
+            elif not(re.search('一案.*本院.*简易程序.*(因|转为)',x)==None):
+                types.append('已审理（简易转普通）')
+            elif not(re.search('一案.*(小额诉讼程序|简易程序).*审理(。$|终结。$|.*到庭参加诉讼|.*到庭应诉|.*参加诉讼)',x)==None):
+                types.append('已审理（简易）')    
+            elif not(re.search('(一案.*本院.*(审理。$|审理终结。$|公开开庭进行了审理。$|公开开庭进行.?审理.*到庭参加.?诉讼))',x)==None):
+                types.append('已审理')
+            #elif not(re.search('一案.*本院.*(受理|立案).*简易程序.*(因|转为)',x)==None):
+                #types.append('已受理/立案（简易转普通）')
+                #这种情况出现的太少，暂不单独分类
+            elif not(re.search('一案.*本院.*(受理|立案).*(小额诉讼程序|简易程序)(。$|.*由.*审判。$)',x)==None):
+                types.append('已受理/立案（简易）')
+            elif not(re.search('一案.*本院.*(立案。$|立案受理。$|立案后。$)',x)==None):
+                types.append('已受理/立案')    
+            elif not(re.search('一案.*(调解.*原告|原告.*调解).*撤',x)==None):
+                types.append('调解撤诉')
+            elif (re.search('调解',x)==None) and not(re.search('一案.*原告.*撤',x)==None):
+                types.append('其他撤诉')
+            elif not(re.search('一案.*原告.*((未|不).*(受理|诉讼)费|(受理|诉讼)费.*(未|不))',x)==None):
+                types.append('未交费')
+            elif not(re.search('一案.*本院.*依法追加.*被告',x)==None):
+                types.append('追加被告')
+            elif not(re.search('上诉人.*不服.*上诉。$',x)==None):
+                types.append('上诉')
+            elif not(re.search('再审.*一案.*不服.*再审。$',x)==None):
+                types.append('要求再审')
+            elif not(re.search('一案.*申请财产保全.*符合法律规定。$',x)==None):
+                types.append('同意诉前财产保全')
+            elif not(re.search('申请.*(请求|要求).*(查封|冻结|扣押|保全措施)',x)==None):
+                types.append('申请财产保全')
+            elif not(re.search('一案.*(缺席|拒不到庭|未到庭)',x)==None):
+                types.append('缺席审判') 
+            elif not(re.search('一案.*申请.*解除(查封|冻结|扣押|保全措施).*符合法律规定。$',x)==None):
+                types.append('同意解除冻结')  
+            else:
+                types.append('其他/错误')
+
+        #newdict={'庭审程序分类':types,'money':money}
+        newdict={'庭审程序分类':types}
+        newdata = pd.DataFrame(newdict)
+        self.data = pd.concat([self.data, newdata], axis=1)
+        del types
 
     def number12(self):
         pass
