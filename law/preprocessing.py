@@ -8,7 +8,7 @@ import jieba.posseg as pseg
 class read_law:
     def __init__(self, file_path):
         self.file_path = file_path
-        self.data = pd.read_excel(self.file_path)
+        self.data = pd.read_csv(self.file_path,encoding='utf-8',engine='python')#修改读取方式，因为本次使用csv文件读取，所以改成左述形式
         print("Read Data Successful...")
         self.data_len = len(self.data)
         print("This dataset has ", self.data_len, "rows of data.")
@@ -77,36 +77,41 @@ class read_law:
             法院→省、市、级别，空值采用None填补
             -- Xu Xiaojie
         '''
-
+        
         level = []  # 法院级别
         distinct = []  # 法院所在省
         block = []  # 法院所在市区市
 
         for x in self.data['法院']:
-            # 寻找省的字段，如果未找到，使用空值None填补
-            a = re.compile(r'.*省')
-            b = a.search(x)
-            if b == None:
-                distinct.append(None)
-            else:
-                distinct.append(b.group(0))
-                x = re.sub(b.group(0), '', x)  # 删掉省字段，方便寻找市字段
-
-            # 找出市的字段，如果未找到，使用空值None填补
-            a = re.compile(r'.*市')
-            b = a.search(x)
-            if b == None:
-                block.append(None)
-            else:
-                block.append(b.group(0))
-
-            # 找出级别的字段，如果未找到，使用空值None填补
-            a = re.compile(r'.级')
-            b = a.search(x)
-            if b == None:
+            if pd.isna(x):#如果为空
                 level.append(None)
-            else:
-                level.append(b.group(0))
+                distinct.append(None)
+                block.append(None)
+            else:#如果不空
+                # 寻找省的字段，如果未找到，使用空值None填补
+                a = re.compile(r'.*省')
+                b = a.search(x)
+                if b == None:
+                    distinct.append(None)
+                else:
+                    distinct.append(b.group(0))
+                    x = re.sub(b.group(0), '', x)  # 删掉省字段，方便寻找市字段
+
+                # 找出市的字段，如果未找到，使用空值None填补
+                a = re.compile(r'.*市')
+                b = a.search(x)
+                if b == None:
+                    block.append(None)
+                else:
+                    block.append(b.group(0))
+
+                # 找出级别的字段，如果未找到，使用空值None填补
+                a = re.compile(r'.级')
+                b = a.search(x)
+                if b == None:
+                    level.append(None)
+                else:
+                    level.append(b.group(0))
 
         # 创建字典，方便创建DataFrame
         newdict = {
@@ -644,34 +649,34 @@ class read_law:
                 --Xu Xiaojie'''
 
         #  初始化新的属性列
-        data['法院意见_是否涉及金额'] = 0
-        data['法院意见_涉及的法数'] = 0
-        data['法院意见_涉及的条数'] = 0
-        data['法院意见_涉及的款数'] = 0
+        self.data['法院意见_是否涉及金额'] = 0
+        self.data['法院意见_涉及的法数'] = 0
+        self.data['法院意见_涉及的条数'] = 0
+        self.data['法院意见_涉及的款数'] = 0
 
         money_pattern = re.compile(r'[0-9]+元')  # 是否涉及金额匹配
         #  先处理法、条、款数
-        for i in range(len(data['法院意见'])):
-            if not pd.isna(data['法院意见'][i]):  # 如果非空
-                temp = find_law_tiao_kuan_in_text(data['法院意见'][i])  # 返回的是一个有法、条、款的列表
+        for i in range(len(self.data['法院意见'])):
+            if not pd.isna(self.data['法院意见'][i]):  # 如果非空
+                temp = find_law_tiao_kuan_in_text(self.data['法院意见'][i])  # 返回的是一个有法、条、款的列表
                 if len(temp) > 0:
-                    data['法院意见_涉及的法数'][i] = len(temp)  # 法数
+                    self.data['法院意见_涉及的法数'][i] = len(temp)  # 法数
                     # 条数，款数
                     sum_tiao = 0
                     sum_kuan = 0
                     for j in range(len(temp)):
                         sum_tiao += len(temp[j][1])  # 加和条数
                         sum_kuan += len(temp[j][2])  # 加和款数
-                    data['法院意见_涉及的条数'][i] = sum_tiao
-                    data['法院意见_涉及的款数'][i] = sum_kuan
+                    self.data['法院意见_涉及的条数'][i] = sum_tiao
+                    self.data['法院意见_涉及的款数'][i] = sum_kuan
 
         # 再处理金额问题
-        for i in range(len(data['法院意见'])):
-            if not pd.isna(data['法院意见'][i]):  # 如果非空
-                temp1 = money_pattern.findall(data['法院意见'][i])  # temp1返回的是list，里面的元素为包含'XX元'字样的元素
+        for i in range(len(self.data['法院意见'])):
+            if not pd.isna(self.data['法院意见'][i]):  # 如果非空
+                temp1 = money_pattern.findall(self.data['法院意见'][i])  # temp1返回的是list，里面的元素为包含'XX元'字样的元素
                 if len(temp1) == 0:  # 没有‘元’字样直接跳过
                     continue
-                data['法院意见_是否涉及金额'][i] = 1  # 不满足上述条件，则涉及金额
+                self.data['法院意见_是否涉及金额'][i] = 1  # 不满足上述条件，则涉及金额
 
     def number14(self):
         selected_data = self.data["判决结果"]
