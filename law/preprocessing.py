@@ -308,7 +308,7 @@ class read_law:
             elif not(re.search('一案.*本院.*简易程序.*(因|转为)',x)==None):
                 types.append('已审理（简易转普通）')
             elif not(re.search('一案.*(小额诉讼程序|简易程序).*审理(。$|终结。$|.*到庭参加诉讼|.*到庭应诉|.*参加诉讼)',x)==None):
-                types.append('已审理（简易）')    
+                types.append('已审理（简易）')
             elif not(re.search('(一案.*本院.*(审理。$|审理终结。$|公开开庭进行了审理。$|公开开庭进行.?审理.*到庭参加.?诉讼))',x)==None):
                 types.append('已审理')
             #elif not(re.search('一案.*本院.*(受理|立案).*简易程序.*(因|转为)',x)==None):
@@ -317,7 +317,7 @@ class read_law:
             elif not(re.search('一案.*本院.*(受理|立案).*(小额诉讼程序|简易程序)(。$|.*由.*审判。$)',x)==None):
                 types.append('已受理/立案（简易）')
             elif not(re.search('一案.*本院.*(立案。$|立案受理。$|立案后。$)',x)==None):
-                types.append('已受理/立案')    
+                types.append('已受理/立案')
             elif not(re.search('一案.*(调解.*原告|原告.*调解).*撤',x)==None):
                 types.append('调解撤诉')
             elif (re.search('调解',x)==None) and not(re.search('一案.*原告.*撤',x)==None):
@@ -335,9 +335,9 @@ class read_law:
             elif not(re.search('申请.*(请求|要求).*(查封|冻结|扣押|保全措施)',x)==None):
                 types.append('申请财产保全')
             elif not(re.search('一案.*(缺席|拒不到庭|未到庭)',x)==None):
-                types.append('缺席审判') 
+                types.append('缺席审判')
             elif not(re.search('一案.*申请.*解除(查封|冻结|扣押|保全措施).*符合法律规定。$',x)==None):
-                types.append('同意解除冻结')  
+                types.append('同意解除冻结')
             else:
                 types.append('其他/错误')
 
@@ -347,8 +347,293 @@ class read_law:
         self.data = pd.concat([self.data, newdata], axis=1)
         del types
 
-    def number12(self):
-        pass
+    def number12(data):
+
+        l = len(data)
+
+
+        #1.是否撤诉
+        repeal_pattern = re.compile(r'撤诉')
+
+        yes = np.zeros(l)
+        no = np.zeros(l)
+        dk = np.zeros(l)
+        all = np.zeros(l)
+
+        for i in range(l):
+
+            if not pd.isna(data['庭审过程'][i]):
+
+                temp = repeal_pattern.findall(str(data['庭审过程'][i]))
+
+                if len(temp) == 0:
+                    no[i] += 1
+                    all[i] = 0
+
+                else:
+                    yes[i] += 1
+                    all[i] = 1
+
+            else:
+                dk[i] += 1
+                all[i] = -1
+
+        self.data['庭审过程_是否撤诉_是'] = yes
+        self.data['庭审过程_是否撤诉_未知'] = dk
+        self.data['庭审过程_是否撤诉_否'] = no
+        self.data['庭审过程_是否撤诉_汇总'] = all
+
+
+        del yes, no, dk, all
+
+
+
+        #2.是否受伤
+        situation_pattern = re.compile(r'受伤|死亡|伤残|残疾|致残')
+
+        yes = np.zeros(l)
+        no = np.zeros(l)
+        dk = np.zeros(l)
+        all = np.zeros(l)
+
+
+        for i in range(l):
+
+            if not pd.isna(data['庭审过程'][i]):
+
+                temp = situation_pattern.findall(str(data['庭审过程'][i]))
+
+                if len(temp) == 0:
+                    no[i] += 1
+                    all[i] = 0
+
+                else:
+                    yes[i] += 1
+                    all[i] = 1
+
+            else:
+                dk[i] += 1
+                all[i] = -1
+
+        self.data['庭审过程_是否受伤_是'] = yes
+        self.data['庭审过程_是否受伤_否'] = no
+        self.data['庭审过程_是否受伤_未知'] = dk
+        self.data['庭审过程_是否受伤_汇总'] = all
+
+
+        del yes, no, dk, all
+
+
+
+
+        #3. 是否涉及金钱
+        money_pattern = re.compile(r'[0-9]+元|[0-9]+万元|[0-9]+万+[0-9]+千元|[0-9]+千+[0-9]+百元'
+                                   r'[0-9]+万+[0-9]+千+[0-9]+百元|[0-9]+,+[0-9]+元|[0-9]+,+[0-9]+,+[0-9]+元')
+
+        '''
+        包含xxx元 xxx万元 xxx万xxx千元 xxx万xxx千xxx百元 xxx千xxx百元 xxx,xxx元 xxx,xxx,xxx元
+        '''
+
+        yes = np.zeros(l)
+        no = np.zeros(l)
+        dk = np.zeros(l)
+        all = np.zeros(l)
+
+
+        for i in range(l):
+
+            if not pd.isna(data['庭审过程'][i]):
+
+                temp = money_pattern.findall(str(data['庭审过程'][i]))
+
+                if len(temp) == 0:
+                    no[i] += 1
+                    all[i] = 0
+
+                else:
+                    yes[i] += 1
+                    all[i] = 1
+
+            else:
+                dk[i] += 1
+                all[i] = -1
+
+        self.data['庭审过程_是否涉及金钱_是'] = yes
+        self.data['庭审过程_是否涉及金钱_否'] = no
+        self.data['庭审过程_是否涉及金钱_未知'] = dk
+        self.data['庭审过程_是否涉及金钱_汇总'] = all
+
+
+        del yes, no, dk, all
+
+
+
+        #4. 是否故意
+        intent_pattern = re.compile(r'有意|故意')
+
+        yes = np.zeros(l)
+        no = np.zeros(l)
+        dk = np.zeros(l)
+        all = np.zeros(l)
+
+
+        for i in range(l):
+
+            if not pd.isna(data['庭审过程'][i]):
+
+                temp = intent_pattern.findall(str(data['庭审过程'][i]))
+
+                if len(temp) == 0:
+                    no[i] += 1
+                    all[i] = 0
+
+                else:
+                    yes[i] += 1
+                    all[i] = 1
+
+            else:
+                dk[i] += 1
+                all[i] = -1
+
+        self.data['庭审过程_是否故意_是'] = yes
+        self.data['庭审过程_是否故意_否'] = no
+        self.data['庭审过程_是否故意_未知'] = dk
+        self.data['庭审过程_是否故意_汇总'] = all
+
+
+        del yes, no, dk, all
+
+
+
+
+        #5. 是否要求精神赔偿
+        mental_pattern = re.compile(r'精神损失|精神赔偿|精神抚慰')
+
+        yes = np.zeros(l)
+        no = np.zeros(l)
+        dk = np.zeros(l)
+        all = np.zeros(l)
+
+
+        for i in range(l):
+
+            if not pd.isna(data['庭审过程'][i]):
+
+                temp = mental_pattern.findall(str(data['庭审过程'][i]))
+
+                if len(temp) == 0:
+                    no[i] += 1
+                    all[i] = 0
+
+                else:
+                    yes[i] += 1
+                    all[i] = 1
+
+            else:
+                dk[i] += 1
+                all[i] = -1
+
+        self.data['庭审过程_是否要求精神赔偿_是'] = yes
+        self.data['庭审过程_是否要求精神赔偿_否'] = no
+        self.data['庭审过程_是否要求精神赔偿_未知'] = dk
+        self.data['庭审过程_是否要求精神赔偿_汇总'] = all
+
+
+        del yes, no, dk, all
+
+
+
+
+        #6. 是否拒不出庭
+        absent_pattern = re.compile(r'拒不到庭')
+
+        yes = np.zeros(l)
+        no = np.zeros(l)
+        dk = np.zeros(l)
+        all = np.zeros(l)
+
+
+        for i in range(l):
+
+            if not pd.isna(data['庭审过程'][i]):
+
+                temp = absent_pattern.findall(str(data['庭审过程'][i]))
+
+                if len(temp) == 0:
+                    no[i] += 1
+                    all[i] = 0
+
+                else:
+                    yes[i] += 1
+                    all[i] = 1
+
+            else:
+                dk[i] += 1
+                all[i] = -1
+
+        self.data['庭审过程_是否拒不到庭_是'] = yes
+        self.data['庭审过程_是否拒不到庭_否'] = no
+        self.data['庭审过程_是否拒不到庭_未知'] = dk
+        self.data['庭审过程_是否拒不到庭_汇总'] = all
+
+
+        del yes, no, dk, all
+
+
+
+
+
+        #7. 是否有异议、申请重新判决
+        objection_pattern = re.compile(r'有异议|重新鉴定|判决异议|')
+
+        yes = np.zeros(l)
+        no = np.zeros(l)
+        dk = np.zeros(l)
+        all = np.zeros(l)
+
+
+        for i in range(l):
+
+            if not pd.isna(data['庭审过程'][i]):
+
+                temp = objection_pattern.findall(str(data['庭审过程'][i]))
+
+                if len(temp) == 0:
+                    no[i] += 1
+                    all[i] = 0
+
+                else:
+                    yes[i] += 1
+                    all[i] = 1
+
+            else:
+                dk[i] += 1
+                all[i] = -1
+
+        self.data['庭审过程_是否有异议_是'] = yes
+        self.data['庭审过程_是否有异议_否'] = no
+        self.data['庭审过程_是否有异议_未知'] = dk
+        self.data['庭审过程_是否有异议_汇总'] = all
+
+
+        del yes, no, dk, all
+
+
+
+
+        #8. 判决书长度
+        length = np.zeros(l)
+
+        for i in range(l):
+            if type(data['庭审过程'][i]) == str:
+                length[i] = len(data['庭审过程'][i])
+            else:
+                length[i] = 0
+
+        self.data['庭审过程_长度'] = length
+
+        del length
+
 
     def number13(self):
         '''根据属性“法院意见”抓取出如下信息：
