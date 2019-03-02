@@ -28,15 +28,15 @@ class read_law:
         qita = np.zeros(self.data_len)
 
         for i in range(self.data_len):
-            if "刑罚变更" in self.data['庭审程序'][i]:
+            if self.data['庭审程序'][i] == "刑罚变更":
                 xingfabiangeng[i] += 1
-            if "一审" in self.data['庭审程序'][i]:
+            if self.data['庭审程序'][i] == "一审":
                 yishen[i] += 1
-            if "二审" in self.data['庭审程序'][i]:
+            if self.data['庭审程序'][i] == "二审":
                 ershen[i] += 1
-            if "复核" in self.data['庭审程序'][i]:
+            if self.data['庭审程序'][i] == "复核":
                 fushen[i] += 1
-            if "其他" in self.data['庭审程序'][i]:
+            if self.data['庭审程序'][i] == "其他" :
                 qita[i] += 1
 
         self.data['庭审程序_是否_刑罚变更'] = xingfabiangeng
@@ -352,81 +352,79 @@ class read_law:
         self.data = pd.concat([self.data, newdata], axis=1)
         del types
 
-    def number12(data):
-
-        l = len(data)
+    def number12(self):
 
 
         #1.是否撤诉
         repeal_pattern = re.compile(r'撤诉')
 
-        yes = np.zeros(l)
-        no = np.zeros(l)
-        dk = np.zeros(l)
-        all = np.zeros(l)
+        yes = np.zeros(self.data_len)
+        no = np.zeros(self.data_len)
+        dk = np.zeros(self.data_len)
+        al = np.zeros(self.data_len)
 
-        for i in range(l):
+        for i in range(self.data_len):
 
-            if not pd.isna(data['庭审过程'][i]):
+            if not pd.isna(self.data['庭审过程'][i]):
 
-                temp = repeal_pattern.findall(str(data['庭审过程'][i]))
+                temp = repeal_pattern.findall(str(self.data['庭审过程'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
-                    all[i] = 0
+                    al[i] = 0
 
                 else:
                     yes[i] += 1
-                    all[i] = 1
+                    al[i] = 1
 
             else:
                 dk[i] += 1
-                all[i] = -1
+                al[i] = -1
 
         self.data['庭审过程_是否撤诉_是'] = yes
         self.data['庭审过程_是否撤诉_未知'] = dk
         self.data['庭审过程_是否撤诉_否'] = no
-        self.data['庭审过程_是否撤诉_汇总'] = all
+        self.data['庭审过程_是否撤诉_汇总'] = al
 
 
-        del yes, no, dk, all
+        del yes, no, dk, al
 
 
 
         #2.是否受伤
         situation_pattern = re.compile(r'受伤|死亡|伤残|残疾|致残')
 
-        yes = np.zeros(l)
-        no = np.zeros(l)
-        dk = np.zeros(l)
-        all = np.zeros(l)
+        yes = np.zeros(self.data_len)
+        no = np.zeros(self.data_len)
+        dk = np.zeros(self.data_len)
+        al = np.zeros(self.data_len)
 
 
-        for i in range(l):
+        for i in range(self.data_len):
 
-            if not pd.isna(data['庭审过程'][i]):
+            if not pd.isna(self.data['庭审过程'][i]):
 
-                temp = situation_pattern.findall(str(data['庭审过程'][i]))
+                temp = situation_pattern.findall(str(self.data['庭审过程'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
-                    all[i] = 0
+                    al[i] = 0
 
                 else:
                     yes[i] += 1
-                    all[i] = 1
+                    al[i] = 1
 
             else:
                 dk[i] += 1
-                all[i] = -1
+                al[i] = -1
 
         self.data['庭审过程_是否受伤_是'] = yes
         self.data['庭审过程_是否受伤_否'] = no
         self.data['庭审过程_是否受伤_未知'] = dk
-        self.data['庭审过程_是否受伤_汇总'] = all
+        self.data['庭审过程_是否受伤_汇总'] = al
 
 
-        del yes, no, dk, all
+        del yes, no, dk, al
 
 
 
@@ -439,74 +437,74 @@ class read_law:
         包含xxx元 xxx万元 xxx万xxx千元 xxx万xxx千xxx百元 xxx千xxx百元 xxx,xxx元 xxx,xxx,xxx元
         '''
 
-        yes = np.zeros(l)
-        no = np.zeros(l)
-        dk = np.zeros(l)
-        all = np.zeros(l)
+        yes = np.zeros(self.data_len)
+        no = np.zeros(self.data_len)
+        dk = np.zeros(self.data_len)
+        al = np.zeros(self.data_len)
 
 
-        for i in range(l):
+        for i in range(self.data_len):
 
-            if not pd.isna(data['庭审过程'][i]):
+            if not pd.isna(self.data['庭审过程'][i]):
 
-                temp = money_pattern.findall(str(data['庭审过程'][i]))
+                temp = money_pattern.findall(str(self.data['庭审过程'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
-                    all[i] = 0
+                    al[i] = 0
 
                 else:
                     yes[i] += 1
-                    all[i] = 1
+                    al[i] = 1
 
             else:
                 dk[i] += 1
-                all[i] = -1
+                al[i] = -1
 
         self.data['庭审过程_是否涉及金钱_是'] = yes
         self.data['庭审过程_是否涉及金钱_否'] = no
         self.data['庭审过程_是否涉及金钱_未知'] = dk
-        self.data['庭审过程_是否涉及金钱_汇总'] = all
+        self.data['庭审过程_是否涉及金钱_汇总'] = al
 
 
-        del yes, no, dk, all
+        del yes, no, dk, al
 
 
 
         #4. 是否故意
         intent_pattern = re.compile(r'有意|故意')
 
-        yes = np.zeros(l)
-        no = np.zeros(l)
-        dk = np.zeros(l)
-        all = np.zeros(l)
+        yes = np.zeros(self.data_len)
+        no = np.zeros(self.data_len)
+        dk = np.zeros(self.data_len)
+        al = np.zeros(self.data_len)
 
 
-        for i in range(l):
+        for i in range(self.data_len):
 
-            if not pd.isna(data['庭审过程'][i]):
+            if not pd.isna(self.data['庭审过程'][i]):
 
-                temp = intent_pattern.findall(str(data['庭审过程'][i]))
+                temp = intent_pattern.findall(str(self.data['庭审过程'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
-                    all[i] = 0
+                    al[i] = 0
 
                 else:
                     yes[i] += 1
-                    all[i] = 1
+                    al[i] = 1
 
             else:
                 dk[i] += 1
-                all[i] = -1
+                al[i] = -1
 
         self.data['庭审过程_是否故意_是'] = yes
         self.data['庭审过程_是否故意_否'] = no
         self.data['庭审过程_是否故意_未知'] = dk
-        self.data['庭审过程_是否故意_汇总'] = all
+        self.data['庭审过程_是否故意_汇总'] = al
 
 
-        del yes, no, dk, all
+        del yes, no, dk, al
 
 
 
@@ -514,37 +512,37 @@ class read_law:
         #5. 是否要求精神赔偿
         mental_pattern = re.compile(r'精神损失|精神赔偿|精神抚慰')
 
-        yes = np.zeros(l)
-        no = np.zeros(l)
-        dk = np.zeros(l)
-        all = np.zeros(l)
+        yes = np.zeros(self.data_len)
+        no = np.zeros(self.data_len)
+        dk = np.zeros(self.data_len)
+        all = np.zeros(self.data_len)
 
 
-        for i in range(l):
+        for i in range(self.data_len):
 
-            if not pd.isna(data['庭审过程'][i]):
+            if not pd.isna(self.data['庭审过程'][i]):
 
-                temp = mental_pattern.findall(str(data['庭审过程'][i]))
+                temp = mental_pattern.findall(str(self.data['庭审过程'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
-                    all[i] = 0
+                    al[i] = 0
 
                 else:
                     yes[i] += 1
-                    all[i] = 1
+                    al[i] = 1
 
             else:
                 dk[i] += 1
-                all[i] = -1
+                al[i] = -1
 
         self.data['庭审过程_是否要求精神赔偿_是'] = yes
         self.data['庭审过程_是否要求精神赔偿_否'] = no
         self.data['庭审过程_是否要求精神赔偿_未知'] = dk
-        self.data['庭审过程_是否要求精神赔偿_汇总'] = all
+        self.data['庭审过程_是否要求精神赔偿_汇总'] = al
 
 
-        del yes, no, dk, all
+        del yes, no, dk, al
 
 
 
@@ -552,86 +550,83 @@ class read_law:
         #6. 是否拒不出庭
         absent_pattern = re.compile(r'拒不到庭')
 
-        yes = np.zeros(l)
-        no = np.zeros(l)
-        dk = np.zeros(l)
-        all = np.zeros(l)
+        yes = np.zeros(self.data_len)
+        no = np.zeros(self.data_len)
+        dk = np.zeros(self.data_len)
+        al = np.zeros(self.data_len)
 
 
-        for i in range(l):
+        for i in range(self.data_len):
 
-            if not pd.isna(data['庭审过程'][i]):
+            if not pd.isna(self.data['庭审过程'][i]):
 
-                temp = absent_pattern.findall(str(data['庭审过程'][i]))
+                temp = absent_pattern.findall(str(self.data['庭审过程'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
-                    all[i] = 0
+                    al[i] = 0
 
                 else:
                     yes[i] += 1
-                    all[i] = 1
+                    al[i] = 1
 
             else:
                 dk[i] += 1
-                all[i] = -1
+                al[i] = -1
 
         self.data['庭审过程_是否拒不到庭_是'] = yes
         self.data['庭审过程_是否拒不到庭_否'] = no
         self.data['庭审过程_是否拒不到庭_未知'] = dk
-        self.data['庭审过程_是否拒不到庭_汇总'] = all
+        self.data['庭审过程_是否拒不到庭_汇总'] = al
 
 
-        del yes, no, dk, all
-
-
-
+        del yes, no, dk, al
 
 
         #7. 是否有异议、申请重新判决
         objection_pattern = re.compile(r'有异议|重新鉴定|判决异议|')
 
-        yes = np.zeros(l)
-        no = np.zeros(l)
-        dk = np.zeros(l)
-        all = np.zeros(l)
+        yes = np.zeros(self.data_len)
+        no = np.zeros(self.data_len)
+        dk = np.zeros(self.data_len)
+        all = np.zeros(self.data_len)
 
 
-        for i in range(l):
+        for i in range(self.data_len):
 
-            if not pd.isna(data['庭审过程'][i]):
+            if not pd.isna(self.data['庭审过程'][i]):
 
-                temp = objection_pattern.findall(str(data['庭审过程'][i]))
+                temp = objection_pattern.findall(str(self.data['庭审过程'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
-                    all[i] = 0
+                    al[i] = 0
 
                 else:
                     yes[i] += 1
-                    all[i] = 1
+                    al[i] = 1
 
             else:
                 dk[i] += 1
-                all[i] = -1
+                al[i] = -1
 
         self.data['庭审过程_是否有异议_是'] = yes
         self.data['庭审过程_是否有异议_否'] = no
         self.data['庭审过程_是否有异议_未知'] = dk
-        self.data['庭审过程_是否有异议_汇总'] = all
+        self.data['庭审过程_是否有异议_汇总'] = al
 
 
-        del yes, no, dk, all
+        del yes, no, dk, al
 
 
 
 
         #8. 判决书长度
-        length = np.zeros(l)
+        length = np.zeros(self.data_len)
 
-        for i in range(l):
-            if type(data['庭审过程'][i]) == str:
-                length[i] = len(data['庭审过程'][i])
+        for i in range(self.data_len):
+            if type(self.data['庭审过程'][i]) == str:
+                length[i] = len(self.data['庭审过程'][i])
             else:
                 length[i] = 0
 
