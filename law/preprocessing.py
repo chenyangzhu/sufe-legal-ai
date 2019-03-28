@@ -3,12 +3,14 @@ import numpy as np
 import re
 from law.utils import *
 import jieba.posseg as pseg
+import datetime
 
 
 class read_law:
     def __init__(self, file_path):
         self.file_path = file_path
-        self.data = pd.read_csv(self.file_path,encoding='utf-8',engine='python')#修改读取方式，因为本次使用csv文件读取，所以改成左述形式
+        self.data = pd.read_csv(self.file_path, encoding='utf-8', engine='python')
+        # 修改读取方式，因为本次使用csv文件读取，所以改成左述形式
         print("Read Data Successful...")
         self.data_len = len(self.data)
         print("This dataset has ", self.data_len, "rows of data.")
@@ -54,7 +56,6 @@ class read_law:
     def number3(self):
         '''
         This function change '案由' into one hot encodings
-        '''
         reasons = ['机动车交通事故责任纠纷' ,'物件损害责任纠纷' ,'侵权责任纠纷', '产品责任纠纷', '提供劳务者受害责任纠纷' ,'医疗损害责任纠纷',
  '地面施工、地下设施损害责任纠纷', '饲养动物损害责任纠纷' ,'产品销售者责任纠纷', '因申请诉中财产保全损害责任纠纷', '教育机构责任纠纷',
  '违反安全保障义务责任纠纷' , '网络侵权责任纠纷' ,'因申请诉前财产保全损害责任纠纷' ,'物件脱落、坠落损害责任纠纷',
@@ -65,11 +66,13 @@ class read_law:
  '铁路运输人身损害责任纠纷' ,'水污染责任纠纷', '林木折断损害责任纠纷', '侵害患者知情同意权责任纠纷' ,'群众性活动组织者责任纠纷',
  '土壤污染责任纠纷']
         mreason = np.zeros((len(right),len(reasons)))
-        for i in range(len(right)) :   
-    for j,reason in enumerate(reasons):
-        if right['案由'][i] == reason:
-            mreason[i,j] +=1
-            np.savetxt('.../num3.csv',reasons,delimiter = ',') 
+        for i in range(len(right)) :
+            for j,reason in enumerate(reasons):
+                if right['案由'][i] == reason:
+                    mreason[i,j] +=1
+                    np.savetxt('.../num3.csv',reasons,delimiter = ',')
+        '''
+
         pass
 
     def number4(self):
@@ -95,7 +98,7 @@ class read_law:
             法院→省、市、级别，空值采用None填补
             -- Xu Xiaojie
         '''
-        
+
         level = []  # 法院级别
         distinct = []  # 法院所在省
         block = []  # 法院所在市区市
@@ -636,9 +639,6 @@ class read_law:
 
         del yes, no, dk, al
 
-
-
-
         #8. 判决书长度
         length = np.zeros(self.data_len)
 
@@ -830,7 +830,7 @@ class read_law:
         print("#16 finished")
 
     def store(self, new_path):
-        self.data.to_csv(new_path)
+        self.data.to_csv("./.cache/"+ str(datetime.time()))
 
 
 if __name__ == "__main__":
@@ -838,4 +838,3 @@ if __name__ == "__main__":
     test.preprocess()
     print(test.data)
     test.store("../sample_data/preFinance01.csv")
-    
