@@ -30,3 +30,13 @@ class Model:
                 predicted_y
         '''
         pass
+
+    def store(self, path = '../.cache/'):
+        '''
+        这个方程很重要，是用来存储我们训练过的model，
+        之后用户使用我们的UI时只需要用这个pretrain model来做就可以了。
+        可以用任何形式去存储这个model，比如json/npy等等，
+        只要可以读取后复盘即可。
+        '''
+
+        pass
