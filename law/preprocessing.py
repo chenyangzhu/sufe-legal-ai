@@ -8,6 +8,7 @@ import datetime
 
 class read_law:
     def __init__(self, file_path):
+
         self.file_path = file_path
         self.data = pd.read_csv(self.file_path, encoding='utf-8', engine='python')
         # 修改读取方式，因为本次使用csv文件读取，所以改成左述形式
@@ -57,14 +58,14 @@ class read_law:
         '''
         This function change '案由' into one hot encodings
         reasons = ['机动车交通事故责任纠纷' ,'物件损害责任纠纷' ,'侵权责任纠纷', '产品责任纠纷', '提供劳务者受害责任纠纷' ,'医疗损害责任纠纷',
- '地面施工、地下设施损害责任纠纷', '饲养动物损害责任纠纷' ,'产品销售者责任纠纷', '因申请诉中财产保全损害责任纠纷', '教育机构责任纠纷',
- '违反安全保障义务责任纠纷' , '网络侵权责任纠纷' ,'因申请诉前财产保全损害责任纠纷' ,'物件脱落、坠落损害责任纠纷',
- '因申请诉中证据保全损害责任纠纷' ,'建筑物、构筑物倒塌损害责任纠纷' ,'提供劳务者致害责任纠纷' ,'产品生产者责任纠纷',
- '公共场所管理人责任纠纷', '公证损害责任纠纷', '用人单位责任纠纷' ,'触电人身损害责任纠纷', '义务帮工人受害责任纠纷',
- '高度危险活动损害责任纠纷', '噪声污染责任纠纷' ,'堆放物倒塌致害责任纠纷', '公共道路妨碍通行损害责任纠纷' ,'见义勇为人受害责任纠纷',
- '医疗产品责任纠纷' ,'监护人责任纠纷', '水上运输人身损害责任纠纷', '环境污染责任纠纷', '因申请先予执行损害责任纠纷',
- '铁路运输人身损害责任纠纷' ,'水污染责任纠纷', '林木折断损害责任纠纷', '侵害患者知情同意权责任纠纷' ,'群众性活动组织者责任纠纷',
- '土壤污染责任纠纷']
+        '地面施工、地下设施损害责任纠纷', '饲养动物损害责任纠纷' ,'产品销售者责任纠纷', '因申请诉中财产保全损害责任纠纷', '教育机构责任纠纷',
+        '违反安全保障义务责任纠纷' , '网络侵权责任纠纷' ,'因申请诉前财产保全损害责任纠纷' ,'物件脱落、坠落损害责任纠纷',
+        '因申请诉中证据保全损害责任纠纷' ,'建筑物、构筑物倒塌损害责任纠纷' ,'提供劳务者致害责任纠纷' ,'产品生产者责任纠纷',
+        '公共场所管理人责任纠纷', '公证损害责任纠纷', '用人单位责任纠纷' ,'触电人身损害责任纠纷', '义务帮工人受害责任纠纷',
+        '高度危险活动损害责任纠纷', '噪声污染责任纠纷' ,'堆放物倒塌致害责任纠纷', '公共道路妨碍通行损害责任纠纷' ,'见义勇为人受害责任纠纷',
+        '医疗产品责任纠纷' ,'监护人责任纠纷', '水上运输人身损害责任纠纷', '环境污染责任纠纷', '因申请先予执行损害责任纠纷',
+        '铁路运输人身损害责任纠纷' ,'水污染责任纠纷', '林木折断损害责任纠纷', '侵害患者知情同意权责任纠纷' ,'群众性活动组织者责任纠纷',
+        '土壤污染责任纠纷']
         mreason = np.zeros((len(right),len(reasons)))
         for i in range(len(right)) :
             for j,reason in enumerate(reasons):
@@ -72,7 +73,6 @@ class read_law:
                     mreason[i,j] +=1
                     np.savetxt('.../num3.csv',reasons,delimiter = ',')
         '''
-
         pass
 
     def number4(self):
@@ -375,7 +375,6 @@ class read_law:
 
     def number12(self):
 
-
         #1.是否撤诉
         repeal_pattern = re.compile(r'撤诉')
 
@@ -536,7 +535,7 @@ class read_law:
         yes = np.zeros(self.data_len)
         no = np.zeros(self.data_len)
         dk = np.zeros(self.data_len)
-        all = np.zeros(self.data_len)
+        al = np.zeros(self.data_len)
 
 
         for i in range(self.data_len):
@@ -610,7 +609,7 @@ class read_law:
         yes = np.zeros(self.data_len)
         no = np.zeros(self.data_len)
         dk = np.zeros(self.data_len)
-        all = np.zeros(self.data_len)
+        al = np.zeros(self.data_len)
 
 
         for i in range(self.data_len):
@@ -829,12 +828,11 @@ class read_law:
         self.number16()
         print("#16 finished")
 
-    def store(self, new_path):
-        self.data.to_csv("./.cache/"+ str(datetime.time()))
+    def store(self):
+        self.data.to_csv("./.cache/" + str(datetime.time()))
 
 
 if __name__ == "__main__":
-    test = read_law("../sample_data/Finance01.xlsx")
+    test = read_law("../sample_data/1.xlsx")
     test.preprocess()
-    print(test.data)
-    test.store("../sample_data/preFinance01.csv")
+    test.store()
