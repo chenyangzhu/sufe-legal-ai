@@ -5,9 +5,9 @@
 
 之后将删除github里的所有数据。
 ### 如何上传我现有的数据？
-我已经在项目根目录写了一个`update.py`文件，可以简单地处理并上传所有的数据，在 command line / cmd / terminal 定位到本项目的目录。
+我已经在项目根目录写了一个`upload.py`文件，可以简单地处理并上传所有的数据，在 command line / cmd / terminal 定位到本项目的目录。
 ```
-python update.py --dir='输入你存放数据的文件夹例如：./data' --u=root --p=sufelaw2019
+python upload.py --dir='输入你存放数据的文件夹例如：./data' --u=root --p=sufelaw2019
 ```
 - 注意1：在你存放数据的文件夹里，只能有需要上传的excel文件，不要存放任何其他文件，之后根据该程序的操作即可完成数据上传。
 - 注意2：程序将自动对数据进行如下预处理，
