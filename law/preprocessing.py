@@ -302,18 +302,17 @@ class read_law:
         information = []
         for i in range(data_len):
             # 显示进度
-            if i % 100 == 0:
-                print(i)
+            #if i % 100 == 0:
+                #print(i)
             info = {}
             # 判断是否缺失 很重要
             if pd.isna(self.data['当事人'][i]):
-                information.append(info)
                 information.append({})  # 空集合
                 continue
 
             information.append(ADBinfo(self.data, i))
         self.data['number10'] = information
-
+        
         del information, info  # 控制内存
 
     def number11(self):
@@ -670,18 +669,22 @@ class read_law:
         #  先处理法、条、款数
         for i in range(len(self.data['法院意见'])):
             if not pd.isna(self.data['法院意见'][i]):  # 如果非空
-                temp = find_law_tiao_kuan_in_text(self.data['法院意见'][i])  # 返回的是一个有法、条、款的列表
-                if len(temp) > 0:
-                    self.data['法院意见_涉及的法数'][i] = len(temp)  # 法数
-                    # 条数，款数
-                    sum_tiao = 0
-                    sum_kuan = 0
-                    for j in range(len(temp)):
-                        sum_tiao += len(temp[j][1])  # 加和条数
-                        sum_kuan += len(temp[j][2])  # 加和款数
-                    self.data['法院意见_涉及的条数'][i] = sum_tiao
-                    self.data['法院意见_涉及的款数'][i] = sum_kuan
-
+                try:
+                    temp = find_law_tiao_kuan_in_text(self.data['法院意见'][i])#返回的是一个有法、条、款的列表
+                except:
+                    print('法院意见无法处理的案件案号:'+self.data['案号'][i])
+                else:
+                    if len(temp) > 0:
+                        self.data['法院意见_涉及的法数'][i] = len(temp)#法数
+                        #条数，款数
+                        sum_tiao = 0
+                        sum_kuan = 0
+                        for j in range(len(temp)):
+                            sum_tiao += len(temp[j][1])#加和条数
+                            sum_kuan += len(temp[j][2])#加和款数
+                        self.data['法院意见_涉及的条数'][i] = sum_tiao
+                        self.data['法院意见_涉及的款数'][i] = sum_kuan
+        
         # 再处理金额问题
         for i in range(len(self.data['法院意见'])):
             if not pd.isna(self.data['法院意见'][i]):  # 如果非空
@@ -749,7 +752,7 @@ class read_law:
 
         # 通过字典建立DataFrame，并合并
         newdata = pd.DataFrame(newdict)
-        self.data = pd.concat([data, newdata], axis=1)
+        self.data = pd.concat([self.data, newdata], axis=1)
 
         del newdata, newdict, basis, result, charge, sentence
 
@@ -779,8 +782,8 @@ class read_law:
                     final2.append(0)
                 else:
                     final2.append(1)
-        print(len(final1))
-        print(len(final2))
+        #print(len(final1))
+        #print(len(final2))
         # 创建字典，方便创建DataFrame
         newdict = {
             '是否为终审判决': final1,
