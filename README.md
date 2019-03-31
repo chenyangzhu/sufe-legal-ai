@@ -2,16 +2,17 @@
 
 ## 上传你的excel数据
 由于初次做项目的时候发现数据存在大量的不容和、所有人数据版本不同的情况，我们建立了一个非常容易使用的MySQL server，你可以直接通过MySQL对该服务器进行访问。
-### 如何上传我先有的数据？
+### 如何上传我现有的数据？
 我已经在项目根目录写了一个`update.py`文件，可以简单地处理并上传所有的数据，在 command line / cmd / terminal 定位到本项目的目录。
 ```
 python update.py --dir='输入你存放数据的文件夹' --u=root --p=sufelaw2019
 ```
 - 注意1：在你存放数据的文件夹里，只能有需要上传的excel文件，不要存放任何其他文件，之后根据该程序的操作即可完成数据上传。
-- 注意2：对数据进行预处理，
+- 注意2：程序将自动对数据进行如下预处理，
   - 对所有的nan用""替换；
   - 对没有时间的条目，用'2050-01-01'替换；
-  - 合并了重复的栏目，使用简单的字符串加减。
+  - 合并了重复的列，使用简单的字符串加减。
+- 注意3：上传时会自动跳过重复条目、overflow条目等。
 - 注意3：如果发生bug等任何问题，请及时提交issue在github上！
 
 ### 如何调用服务器里的数据
@@ -43,31 +44,7 @@ localhost:8008/admin/
 ```
 输入账户`root`和密码`123456`，即可存储法律文件。
 
-
-## 模型思路
-
-- SVD 分解
-
-  - 行：案件 列：特征
-
-  - 对于共线性的解释 (奇异值小的）
-  - 可以预测没有观测的位置的取值
-
-- logistic 回归（筛选变量之后）可以尝试其他连接函数
-  先用主成分分解看变量相依关系
-
-- 贝叶斯网络-> conditional probability between feature
-
-  可能要先做特征筛选
-
-  实现方法
-
-   https://site.douban.com/182577/widget/notes/12817482/note/273585095/
-
-  R包 gRain bnlearn
-
-
-# law package 介绍
+## law package 介绍
 
 clone 了这个repository后，使用 import 来调用这个包
 ~~~
@@ -76,7 +53,7 @@ import law
 
 下面是这个包的一些介绍。
 
-## law.utils 包
+### law.utils 包
 
 这个包集成了你所需要的很多分词工具，例如从一段文字中直接提取法律名、条款号。
 
@@ -102,6 +79,6 @@ from law.utils import find_law_tiao_kuan_in_text
 find_law_in_series(data['法院意见'])
 ~~~
 
-## law.preprocessing包
+### law.preprocessing包
 
 这个包是我们最后需要写成的模块集合，可以对号入座！
