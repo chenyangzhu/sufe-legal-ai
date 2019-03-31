@@ -1,6 +1,6 @@
 # sufelaw2019
 
-## 上传你的excel数据
+## MySQL 连接
 由于初次做项目的时候发现数据存在大量的不容和、所有人数据版本不同的情况，我们建立了一个非常容易使用的MySQL server，你可以直接通过MySQL对该服务器进行访问。
 
 之后将删除github里的所有数据。
@@ -42,7 +42,7 @@ python update.py --dir='输入你存放数据的文件夹例如：./data' --u=ro
 - 注意3：上传时会自动跳过重复条目、overflow条目等。
 - 注意3：如果发生bug等任何问题，请及时提交issue在github上！
 
-### 如何调用服务器里的数据
+### 我如何调用服务器里的数据？
 你可以阅读腾讯云的[简介](https://cloud.tencent.com/document/product/236/3130)，即可使用。简而言之，首先是安装mysql，然后在cmd/terminal中输入，
 ```
 mysql -h cdb-74dx1ytr.gz.tencentcdb.com -P 10008 -u root -p
