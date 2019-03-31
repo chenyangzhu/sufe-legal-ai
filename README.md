@@ -43,7 +43,11 @@ python update.py --dir='输入你存放数据的文件夹' --u=root --p=sufelaw2
 - 注意3：如果发生bug等任何问题，请及时提交issue在github上！
 
 ### 如何调用服务器里的数据
-你可以阅读腾讯云的[简介](https://cloud.tencent.com/document/product/236/3130)，即可使用。当然在python里，主要的使用方式是用以下语句：
+你可以阅读腾讯云的[简介](https://cloud.tencent.com/document/product/236/3130)，即可使用。
+```
+mysql -h cdb-74dx1ytr.gz.tencentcdb.com -P 10008 -u root -p
+```
+当然在python里，主要的使用方式是用以下语句：
 ```
 # 连接数据库
 cnx = mysql.connector.connect(user=root, password=sufelaw2019,
