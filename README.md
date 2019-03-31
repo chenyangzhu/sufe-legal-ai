@@ -1,4 +1,36 @@
 # sufelaw2019
+
+## 上传你的excel数据
+由于初次做项目的时候发现数据存在大量的不容和、所有人数据版本不同的情况，我们建立了一个非常容易使用的MySQL server，你可以直接通过MySQL对该服务器进行访问。
+### 如何上传我先有的数据？
+我已经在项目根目录写了一个`update.py`文件，可以简单地处理并上传所有的数据，在 command line / cmd / terminal 定位到本项目的目录。
+```
+python update.py --dir='输入你存放数据的文件夹' --u=root --p=sufelaw2019
+```
+- 注意1：在你存放数据的文件夹里，只能有需要上传的excel文件，不要存放任何其他文件，之后根据该程序的操作即可完成数据上传。
+- 注意2：对数据进行预处理，
+  - 对所有的nan用""替换；
+  - 对没有时间的条目，用'2050-01-01'替换；
+  - 合并了重复的栏目，使用简单的字符串加减。
+- 注意3：如果发生bug等任何问题，请及时提交issue在github上！
+
+### 如何调用服务器里的数据
+你可以阅读腾讯云的[简介](https://cloud.tencent.com/document/product/236/3130)，即可使用。当然在python里，主要的使用方式是用以下语句：
+```
+# 连接数据库
+cnx = mysql.connector.connect(user=root, password=sufelaw2019,
+                              host='cdb-74dx1ytr.tencentcdb.com',
+                              port = "10008",
+                              database='law')
+cursor = cnx.cursor(buffered=True)
+
+# 通过pandas阅读数据库内容
+data = pd.read_sql('SELECT * FROM Civil;',con=cnx)
+```
+### 数据库的构造
+目前这个数据库里有一个库叫做`law`，这个库里有一个表叫做`Civil`，数据库的默认编码是`utf8`，所有的配置可以在群里查看。
+
+
 ## 使用UI界面
 
 在目录`page`下，在cmd/terminal输入
