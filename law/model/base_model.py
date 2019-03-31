@@ -31,7 +31,7 @@ class Model:
         '''
         pass
 
-    def store(self, path = '../.cache/'):
+    def store(self, path='../.cache/'):
         '''
         这个方程很重要，是用来存储我们训练过的model，
         之后用户使用我们的UI时只需要用这个pretrain model来做就可以了。
@@ -40,3 +40,8 @@ class Model:
         '''
 
         pass
+
+    def read(self, dir='../.cache/xxx.m'):
+        '''
+        用这个function来读取我们训练过的model
+        '''
