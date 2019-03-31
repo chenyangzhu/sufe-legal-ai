@@ -45,3 +45,4 @@ class Model:
         '''
         用这个function来读取我们训练过的model
         '''
+        pass
