@@ -57,6 +57,7 @@ class read_law:
     def number3(self):
         '''
         This function change '案由' into one hot encodings
+        '''
         reasons = ['机动车交通事故责任纠纷' ,'物件损害责任纠纷' ,'侵权责任纠纷', '产品责任纠纷', '提供劳务者受害责任纠纷' ,'医疗损害责任纠纷',
         '地面施工、地下设施损害责任纠纷', '饲养动物损害责任纠纷' ,'产品销售者责任纠纷', '因申请诉中财产保全损害责任纠纷', '教育机构责任纠纷',
         '违反安全保障义务责任纠纷' , '网络侵权责任纠纷' ,'因申请诉前财产保全损害责任纠纷' ,'物件脱落、坠落损害责任纠纷',
@@ -66,14 +67,14 @@ class read_law:
         '医疗产品责任纠纷' ,'监护人责任纠纷', '水上运输人身损害责任纠纷', '环境污染责任纠纷', '因申请先予执行损害责任纠纷',
         '铁路运输人身损害责任纠纷' ,'水污染责任纠纷', '林木折断损害责任纠纷', '侵害患者知情同意权责任纠纷' ,'群众性活动组织者责任纠纷',
         '土壤污染责任纠纷']
-        mreason = np.zeros((len(right),len(reasons)))
-        for i in range(len(right)) :
+        mreason = np.zeros(self.data_len)
+        for i in range(self.data_len) :
             for j,reason in enumerate(reasons):
-                if right['案由'][i] == reason:
-                    mreason[i,j] +=1
-                    np.savetxt('.../num3.csv',reasons,delimiter = ',')
-        '''
-        pass
+                if self.data['案由'][i] == reasons[j]:
+                    mreason[i] +=j+1
+        self.data['案由index'] = mreason
+       
+        del mreason  # 控制内存  
 
     def number4(self):
         '''
@@ -266,7 +267,7 @@ class read_law:
                 other_person[i] = 1
                 for mes in l4:
                     words = pseg.cut(mes)
-                    verbs = []
+                    #verbs = []
                     for word, flag in words:
                         if flag == 'v':  # 人名词性为nr
                             other_person[i] = 0
