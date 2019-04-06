@@ -2,6 +2,7 @@ import re
 import pandas as pd
 import numpy as np
 import jieba.posseg as pseg
+import pymysql
 
 
 def find_law_in_series(series):
@@ -218,3 +219,52 @@ def ADBinfo(data, index):
                 d_ind = d_ind + 1
 
     return (info)
+
+
+def total_fa_tiao_kuan():
+    '''
+    output:
+        借本库find_law_tiao_kuan_in_text函数，以dataframe的形式输出数据库中所有案件所涉及的法、条、款的清单
+    '''
+    
+    # 连接数据库
+    cnx = pymysql.connect(user='root', password='sufelaw2019',
+                                  host='cdb-74dx1ytr.gz.tencentcdb.com',
+                                  port = 10008,
+                                  database='law')
+    
+    # 通过pandas阅读数据库内容
+    data = pd.read_sql('SELECT * FROM Civil;',con=cnx)
+    
+    #建立空的法、条、款清单
+    df_list = pd.DataFrame(columns = ['fa','tiao','kuan'])
+    
+    #填入数据
+    for process in data['process']:
+        x = find_law_tiao_kuan_in_text(process)
+        tiao_pattern = re.compile(r'.*条')
+
+        if len(x) != 0:
+            for element in x:#每个element也是一个列表，每个列表中包含一部法的涉及条款
+                if len(element[1]) == 0 and len(element[2]) == 0:#即这个列表里只有法，没有条也没有款
+                    temp = [element[0],'','']
+                    df_list.loc[df_list.shape[0]] = temp
+                elif len(element[1]) != 0 and len(element[2]) == 0:#即这个列表里有法有条但没有款
+                    for tiao in element[1]:
+                        temp = [element[0],tiao,'']
+                        df_list.loc[df_list.shape[0]] = temp
+                elif len(element[1]) != 0 and len(element[2]) != 0:#即这个列表有法有条有款
+                    existed_tiao_in_kuan = []#存储已包含在element[2]中的条
+                    for tiao_kuan in element[2]:#tiao_kuan是一个字符串
+                        tiao = tiao_pattern.findall(tiao_kuan)#是个list，默认只有一个元素
+                        kuan = tiao_kuan.replace(tiao[0],'')
+                        existed_tiao_in_kuan.append(tiao[0])
+
+                        temp = [element[0],tiao[0],kuan]
+                        df_list.loc[df_list.shape[0]] = temp
+                    existed_tiao_in_kuan = list(set(existed_tiao_in_kuan))#去重
+                    for tiao1 in element[1]:
+                        if tiao1 not in existed_tiao_in_kuan:
+                            temp = [element[0],tiao1,'']
+                            df_list.loc[df_list.shape[0]] = temp
+    return df_list
