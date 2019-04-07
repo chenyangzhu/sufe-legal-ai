@@ -35,9 +35,9 @@ class Pca(Model):
         else:
             a = 0
             i = 0
-            while(a/np.sum(u) < self.score):
-                a+=u[i]
-                i+=1
+            while(i/np.sum(u) < self.score):
+                i+=u[a]
+                a+=1
         
         newx = X.dot(v[0:a].T.real)
         self.reg.fit(newx, y)
