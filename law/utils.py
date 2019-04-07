@@ -281,3 +281,14 @@ def total_fa_tiao_kuan():
                                     temp = [element[0],tiao1,'']
                                     df_list.loc[df_list.shape[0]] = temp
     return df_list
+
+
+def string2int(string):
+    '''
+    If the string is convertable to int, return the int.
+    If not, return the string back.
+    '''
+    try:
+        return int(string)
+    except ValueError:
+        return string

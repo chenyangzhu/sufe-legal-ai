@@ -5,52 +5,26 @@
 - 提供法条推荐系统
 - MIT 授权协议
 
-## 安装说明
-代码对 Python 2/3 均兼容
-- 全自动安装：easy_install law 或者 pip install law / pip3 install law
-- 手动安装：将 law 目录放置于当前目录或者 site-packages 目录
-- 通过 import law 来引用
 
-## 模型思路
+# law package 介绍
 
-- SVD 分解
-  - 行：案件 列：特征
-  - 对于共线性的解释 (奇异值小的）
-  - 可以预测没有观测的位置的取值
+## law.data
+### `class` law.data.read_law(n=1000, preprocessing=False)
+- `return_data()` 提取data
+- `store()` 存储data到本地
 
-- logistic 回归（筛选变量之后）可以尝试其他连接函数
-  先用主成分分解看变量相依关系
+## law.utils
 
-- 贝叶斯网络-> conditional probability between feature
+### law.utils.find_law_in_series()
+### law.utils.find_law_tiao_kuan_in_text()
+### law.utils.find_something_with_pre()
+### law.utils.classify_subject_in_text()
+### law.utils.getn()
+### law.utils.ADBinfo()
+### law.utils.total_fa_tiao_kuan()
 
-  可能要先做特征筛选
 
-  实现方法
 
-   https://site.douban.com/182577/widget/notes/12817482/note/273585095/
-
-  R包 gRain bnlearn
-  
- - 随机森林模型
-   通过训练结果筛选出强特征
- 
- - 多标签分类模型
-   - LPLR模型
-     将每个标签组合看作是一个标签，转化成标签之间互相独立的多标签分类问题
-   - LBR模型
-     划分标签空间，减少枚举和运算
- 
-
-## law package 介绍
-
-clone 了这个repository后，使用 import 来调用这个包
-~~~
-import law
-~~~
-
-下面是这个包的一些介绍。
-
-### law.utils 包
 
 这个包集成了你所需要的很多分词工具，例如从一段文字中直接提取法律名、条款号。
 
