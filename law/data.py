@@ -862,9 +862,3 @@ class read_law:
 
     def store(self):
         self.data.to_csv("./.cache/" + str(datetime.time()))
-
-
-if __name__ == "__main__":
-    test = read_law("../sample_data/1.xlsx")
-    test.preprocess()
-    test.store()
