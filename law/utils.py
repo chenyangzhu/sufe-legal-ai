@@ -231,46 +231,45 @@ def total_fa_tiao_kuan():
     备注：
         另外本法、条、款清单的查重工作尚需完善。
     '''
-    
+
     # 连接数据库
     cnx = pymysql.connect(user='root', password='sufelaw2019',
-                                  host='cdb-74dx1ytr.gz.tencentcdb.com',
-                                  port = 10008,
-                                  database='law')
-    
+                          host='cdb-74dx1ytr.gz.tencentcdb.com',
+                          port=10008,
+                          database='law')
+
     # 通过pandas阅读数据库内容
-    data = pd.read_sql('SELECT * FROM Civil;',con=cnx)
-    
-    #记录样本数
+    data = pd.read_sql('SELECT * FROM Civil;', con=cnx)
+
+    # 记录样本数
     sample_n = len(data)
-    
-    #建立空的法、条、款清单
-    df_list = pd.DataFrame(columns = ['fa','tiao','kuan'])
-    
+
+    # 建立空的法、条、款清单
+    df_list = pd.DataFrame(columns=['fa', 'tiao', 'kuan'])
+
     tiao_pattern = re.compile(r'.*条')
-    
-    
-    #填入数据
+
+    # 填入数据
     for i in range(sample_n):
-        if not pd.isnull(data['process'][i]):#find_law_tiao_kuan_in_text函数不支持nan类型数据输入，故先判断
+        if not pd.isnull(data['process'][i]):  # find_law_tiao_kuan_in_text函数不支持nan类型数据输入，故先判断
             try:
-                x = find_law_tiao_kuan_in_text(data['process'][i])#对于特定的一些字符，find_law_tiao_kuan_in_text会报错
+                x = find_law_tiao_kuan_in_text(data['process'][i])  # 对于特定的一些字符，find_law_tiao_kuan_in_text会报错
             except:
                 print("报错：" + data['id'][i])
-            else:  
+            else:
                 if len(x) != 0:
-                    for element in x:#每个element也是一个列表，每个列表中包含一部法的涉及条款
-                        if len(element[1]) == 0 and len(element[2]) == 0:#即这个列表里只有法，没有条也没有款
-                            temp = [element[0],'','']
+                    for element in x:  # 每个element也是一个列表，每个列表中包含一部法的涉及条款
+                        if len(element[1]) == 0 and len(element[2]) == 0:  # 即这个列表里只有法，没有条也没有款
+                            temp = [element[0], '', '']
                             df_list.loc[df_list.shape[0]] = temp
-                        elif len(element[1]) != 0 and len(element[2]) == 0:#即这个列表里有法有条但没有款
+                        elif len(element[1]) != 0 and len(element[2]) == 0:  # 即这个列表里有法有条但没有款
                             for tiao in element[1]:
-                                temp = [element[0],tiao,'']
+                                temp = [element[0], tiao,'']
                                 df_list.loc[df_list.shape[0]] = temp
                         elif len(element[1]) != 0 and len(element[2]) != 0:#即这个列表有法有条有款
-                            existed_tiao_in_kuan = []#存储已包含在element[2]中的条
-                            for tiao_kuan in element[2]:#tiao_kuan是一个字符串
-                                tiao = tiao_pattern.findall(tiao_kuan)#是个list，默认只有一个元素
+                            existed_tiao_in_kuan = []  # 存储已包含在element[2]中的条
+                            for tiao_kuan in element[2]:  # tiao_kuan是一个字符串
+                                tiao = tiao_pattern.findall(tiao_kuan)  # 是个list，默认只有一个元素
                                 kuan = tiao_kuan.replace(tiao[0],'')
                                 existed_tiao_in_kuan.append(tiao[0])
 
