@@ -115,9 +115,9 @@ for each_name in file_names:
         except DataError:
             print("Data is wrong in" + str(dat.iloc[i]['id']) + ". Skipped")
             pass
-        else:
-            print("An unknown error occured." + str(dat.iloc[i]['id']) + "is skipped.")
-            pass
+        # else:
+        #    print("An unknown error occured." + str(dat.iloc[i]['id']) + "is skipped.")
+        #    pass
         if i % 20 == 0:
             print("doing the " + str(i) + "th data")
             cnx.commit()
