@@ -11,7 +11,8 @@ class Pca(Model):
     def __init__(self, score=0.95, minpca=2, maxpca=10):
         super().__init__()
         self.score = score
-        self.maxpca = 10 
+        self.maxpca = maxpca
+        self.minpca = minpca
         self.reg = linear_model.LogisticRegression()
         
         '''
