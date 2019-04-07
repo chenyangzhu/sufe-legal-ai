@@ -4,20 +4,45 @@ import re
 from law.utils import *
 import jieba.posseg as pseg
 import datetime
-
+import mysql.connector
+import pandas as pd
 
 class read_law:
-    def __init__(self, file_path):
-
-        self.file_path = file_path
-        self.data = pd.read_csv(self.file_path, encoding='utf-8', engine='python')
+    def __init__(self, n=1000, preprocessing=False):
+        '''
+        n 就是一共需要读取多少种类型，
+        preprocessing 是是否需要自动preprocess
+        '''
+        # 老版本用file_path调用
+        # self.file_path = file_path
+        # self.data = pd.read_csv(self.file_path, encoding='utf-8', engine='python')
         # 修改读取方式，因为本次使用csv文件读取，所以改成左述形式
+        # 新版本，直接传入数据
+        # 连接数据库
+        self.n = n
+        self.preprocessing = preprocessing
+
+        cnx = mysql.connector.connect(user="root", password="sufelaw2019",
+                                      host='cdb-74dx1ytr.gz.tencentcdb.com',
+                                      port = "10008",
+                                      database='law')
+        cursor = cnx.cursor(buffered=True)
+
+        # 通过pandas阅读数据库内容
+        query = 'SELECT * FROM Civil LIMIT ' + str(self.n) + ';'
+        self.data = pd.read_sql(query,con=cnx)
+
         print("Read Data Successful...")
         self.data_len = len(self.data)
         print("This dataset has ", self.data_len, "rows of data.")
 
         # 处理缺失值，全部用np.nan代替
         self.data = self.data.fillna(np.nan)
+
+    def return_data(self):
+        if self.preprocessing:
+            self.preprocess()
+        return self.data
 
     def number2(self):
         '''
@@ -31,26 +56,26 @@ class read_law:
         qita = np.zeros(self.data_len)
 
         for i in range(self.data_len):
-            if self.data['庭审程序'][i] == "刑罚变更":
+            if self.data['proc'][i] == "刑罚变更":
                 xingfabiangeng[i] += 1
-            if self.data['庭审程序'][i] == "一审":
+            if self.data['proc'][i] == "一审":
                 yishen[i] += 1
-            if self.data['庭审程序'][i] == "二审":
+            if self.data['proc'][i] == "二审":
                 ershen[i] += 1
-            if self.data['庭审程序'][i] == "复核":
+            if self.data['proc'][i] == "复核":
                 fushen[i] += 1
-            if self.data['庭审程序'][i] == "其他" :
+            if self.data['proc'][i] == "其他" :
                 qita[i] += 1
 
-        self.data['庭审程序_是否_刑罚变更'] = xingfabiangeng
-        self.data['庭审程序_是否_一审'] = yishen
-        self.data['庭审程序_是否_二审'] = ershen
-        self.data['庭审程序_是否_复核'] = fushen
-        self.data['庭审程序_是否_其他'] = qita
-        print(xingfabiangeng)
-        print(yishen)
-        print(ershen)
-        print(qita)
+        self.data['proc_是否_刑罚变更'] = xingfabiangeng
+        self.data['proc_是否_一审'] = yishen
+        self.data['proc_是否_二审'] = ershen
+        self.data['proc_是否_复核'] = fushen
+        self.data['proc_是否_其他'] = qita
+        #print(xingfabiangeng)
+        #print(yishen)
+        #print(ershen)
+        #print(qita)
 
         del xingfabiangeng, yishen, ershen, fushen, qita  # 控制内存
 
@@ -68,13 +93,13 @@ class read_law:
         '铁路运输人身损害责任纠纷' ,'水污染责任纠纷', '林木折断损害责任纠纷', '侵害患者知情同意权责任纠纷' ,'群众性活动组织者责任纠纷',
         '土壤污染责任纠纷']
         mreason = np.zeros(self.data_len)
-        for i in range(self.data_len) :
+        for i in range(self.data_len):
             for j,reason in enumerate(reasons):
-                if self.data['案由'][i] == reasons[j]:
+                if self.data['class'][i] == reasons[j]:
                     mreason[i] +=j+1
-        self.data['案由index'] = mreason
-       
-        del mreason  # 控制内存  
+        self.data['class_index'] = mreason
+
+        del mreason  # 控制内存
 
     def number4(self):
         '''
@@ -84,13 +109,13 @@ class read_law:
         caidingshu = np.zeros(self.data_len)
 
         for i in range(self.data_len):
-            if self.data['文书类型'][i] == "判决书":
+            if self.data['doc_type'][i] == "判决书":
                 panjueshu[i] += 1
-            if self.data['文书类型'][i] == "裁定书":
+            if self.data['doc_type'][i] == "裁定书":
                 caidingshu[i] += 1
 
-        self.data['文书类型_是否_判决书'] = panjueshu
-        self.data['文书类型_是否_裁定书'] = caidingshu
+        self.data['doc_type'] = panjueshu
+        self.data['doc_type'] = caidingshu
 
         del panjueshu, caidingshu  # 控制内存
 
@@ -104,7 +129,7 @@ class read_law:
         distinct = []  # 法院所在省
         block = []  # 法院所在市区市
 
-        for x in self.data['法院']:
+        for x in self.data['court_name']:
             if pd.isna(x):#如果为空
                 level.append(None)
                 distinct.append(None)
@@ -156,7 +181,7 @@ class read_law:
         month = []  # 判决月份
         day = []  # 判决日期
 
-        for x in self.data['判决日期']:
+        for x in self.data['date']:
             # 寻找年的字段，如果未找到，使用空值None填补
             a = re.compile(r'.*年')
             b = a.search(str(x))
@@ -203,7 +228,8 @@ class read_law:
         -自然人的名字不超过四个字，则可以根据属性“原告”切词后是否有少于四字的子集进行判断
         -法人：如果有检察院；则自然有法人；如果含有“公司”字样，同样可以判定有法人
         -其他：如果切词所得的结果不满足上述三个任意条件，则属于其他
-        --Xu Xiaojie'''
+        --Xu Xiaojie
+        '''
 
         # 初始化新列
         self.data['原告_是否_检察院'] = 0
@@ -215,13 +241,13 @@ class read_law:
         pattern = r'(?::|：|。|、|\s|，|,)\s*'  # 分词符号匹配，包括中英文冒号，句号，顿号，空格等
         jcy_pattern = re.compile(r'.*检察院')  # 编译检察院的关键字匹配
         gs_pattern = re.compile(r'.*公司')  # 编译公司的关键字匹配
-        for i in range(len(self.data['原告'])):
+        for i in range(len(self.data['plantiff'])):
             # 如果是空值，直接跳过
-            if pd.isna(self.data['原告'][i]):
+            if pd.isna(self.data['plantiff'][i]):
                 continue
             # 如果非空，那么开始分词
-            self.data['原告'][i] = re.sub(' ', '', self.data['原告'][i])  # 先把每行数据的空格去掉
-            result_list = re.split(pattern, self.data['原告'][i])  # 分词后得到的是一个列表
+            self.data['plantiff'][i] = re.sub(' ', '', self.data['plantiff'][i])  # 先把每行数据的空格去掉
+            result_list = re.split(pattern, self.data['plantiff'][i])  # 分词后得到的是一个列表
             for x in result_list:
                 temp1 = jcy_pattern.findall(x)  # temp1返回的是list，里面的元素为包含'检察院'字样的元素
                 temp2 = gs_pattern.findall(x)  # temp2返回的是list，里面的元素为包含'公司'字样的元素
@@ -246,16 +272,16 @@ class read_law:
         other_person = np.zeros(self.data_len)
         for i in range(self.data_len):
             # 显示进度
-            if i % 100 == 0:
-                print(i)
+            #if i % 100 == 0:
+            #    print(i)
             # 判断是否缺失
-            if pd.isna(self.data['被告'][i]):
+            if pd.isna(self.data['defendant'][i]):
                 continue
             # 判断是否有字符串中是否有公司
-            if re.search(company, self.data['被告'][i]) is not None:
+            if re.search(company, self.data['defendant'][i]) is not None:
                 legal_person[i] = 1
             # 查找名字：按标点分割后长度小于等于4，不含有公司（不考虑外国人和少数民族）
-            l = re.split('、', self.data['被告'][i])
+            l = re.split('、', self.data['defendant'][i])
             l1 = list(filter(lambda s: len(s) <= 4, l))
             l2 = list(filter(lambda s: (re.search(company, s)) is None, l1))
             if len(l2) > 0:
@@ -286,12 +312,12 @@ class read_law:
 
         self.data['第三人_有无自然人'] = 0  # 初始化新的列
         pattern = r'(?::|：|。|、|\s|，|,)\s*'  # 分词符号匹配，包括中英文冒号，句号，顿号，空格等
-        for i in range(len(self.data['第三人'])):
+        for i in range(len(self.data['third_party'])):
             # 如果是空值，直接跳过
-            if pd.isna(self.data['第三人'][i]):
+            if pd.isna(self.data['third_party'][i]):
                 continue
             # 如果非空，那么开始分词
-            result_list = re.split(pattern, self.data['第三人'][i])  # 得到的是一个列表
+            result_list = re.split(pattern, self.data['third_party'][i])  # 得到的是一个列表
             # 遍历分词列表中的每个元素，如果有长度小于等4大于0的字符串，则说明有自然人
             for x in result_list:
                 if (0 < len(x) <= 4):
@@ -299,27 +325,26 @@ class read_law:
                     break  # 找到了就可以退出了，不需要遍历剩下的列表元素，节省时间
 
     def number10(self):
-        data_len = len(self.data)
         information = []
-        for i in range(data_len):
+        for i in range(self.data_len):
             # 显示进度
             #if i % 100 == 0:
                 #print(i)
             info = {}
             # 判断是否缺失 很重要
-            if pd.isna(self.data['当事人'][i]):
+            if pd.isna(self.data['party'][i]):
                 information.append({})  # 空集合
                 continue
 
             information.append(ADBinfo(self.data, i))
-        self.data['number10'] = information
-        
+        self.data['party_one_hot'] = information
+
         del information, info  # 控制内存
 
     def number11(self):
-        types=[] #程序类别
-        money=[]
-        for x in self.data['庭审程序说明']: #这里上传的时候要改成self.data['庭审程序说明']
+        types = []  # 程序类别
+        money = []
+        for x in self.data['procedure']: # 这里上传的时候要改成self.data['庭审程序说明']
             #print(x)
             if str(x)=='nan' or re.search('[0-9]+元',x)==None:
                 money.append(0)
@@ -385,9 +410,9 @@ class read_law:
 
         for i in range(self.data_len):
 
-            if not pd.isna(self.data['庭审过程'][i]):
+            if not pd.isna(self.data['process'][i]):
 
-                temp = repeal_pattern.findall(str(self.data['庭审过程'][i]))
+                temp = repeal_pattern.findall(str(self.data['process'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
@@ -422,9 +447,9 @@ class read_law:
 
         for i in range(self.data_len):
 
-            if not pd.isna(self.data['庭审过程'][i]):
+            if not pd.isna(self.data['process'][i]):
 
-                temp = situation_pattern.findall(str(self.data['庭审过程'][i]))
+                temp = situation_pattern.findall(str(self.data['process'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
@@ -465,9 +490,9 @@ class read_law:
 
         for i in range(self.data_len):
 
-            if not pd.isna(self.data['庭审过程'][i]):
+            if not pd.isna(self.data['process'][i]):
 
-                temp = money_pattern.findall(str(self.data['庭审过程'][i]))
+                temp = money_pattern.findall(str(self.data['process'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
@@ -502,9 +527,9 @@ class read_law:
 
         for i in range(self.data_len):
 
-            if not pd.isna(self.data['庭审过程'][i]):
+            if not pd.isna(self.data['process'][i]):
 
-                temp = intent_pattern.findall(str(self.data['庭审过程'][i]))
+                temp = intent_pattern.findall(str(self.data['process'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
@@ -540,9 +565,9 @@ class read_law:
 
         for i in range(self.data_len):
 
-            if not pd.isna(self.data['庭审过程'][i]):
+            if not pd.isna(self.data['process'][i]):
 
-                temp = mental_pattern.findall(str(self.data['庭审过程'][i]))
+                temp = mental_pattern.findall(str(self.data['process'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
@@ -578,9 +603,9 @@ class read_law:
 
         for i in range(self.data_len):
 
-            if not pd.isna(self.data['庭审过程'][i]):
+            if not pd.isna(self.data['process'][i]):
 
-                temp = absent_pattern.findall(str(self.data['庭审过程'][i]))
+                temp = absent_pattern.findall(str(self.data['process'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
@@ -614,9 +639,9 @@ class read_law:
 
         for i in range(self.data_len):
 
-            if not pd.isna(self.data['庭审过程'][i]):
+            if not pd.isna(self.data['process'][i]):
 
-                temp = objection_pattern.findall(str(self.data['庭审过程'][i]))
+                temp = objection_pattern.findall(str(self.data['process'][i]))
 
                 if len(temp) == 0:
                     no[i] += 1
@@ -642,8 +667,8 @@ class read_law:
         length = np.zeros(self.data_len)
 
         for i in range(self.data_len):
-            if type(self.data['庭审过程'][i]) == str:
-                length[i] = len(self.data['庭审过程'][i])
+            if type(self.data['process'][i]) == str:
+                length[i] = len(self.data['process'][i])
             else:
                 length[i] = 0
 
@@ -668,12 +693,12 @@ class read_law:
 
         money_pattern = re.compile(r'[0-9]+元')  # 是否涉及金额匹配
         #  先处理法、条、款数
-        for i in range(len(self.data['法院意见'])):
-            if not pd.isna(self.data['法院意见'][i]):  # 如果非空
+        for i in range(len(self.data['opinion'])):
+            if not pd.isna(self.data['opinion'][i]):  # 如果非空
                 try:
-                    temp = find_law_tiao_kuan_in_text(self.data['法院意见'][i])#返回的是一个有法、条、款的列表
+                    temp = find_law_tiao_kuan_in_text(self.data['opinion'][i])#返回的是一个有法、条、款的列表
                 except:
-                    print('法院意见无法处理的案件案号:'+self.data['案号'][i])
+                    print('法院意见无法处理的案件案号:'+self.data['id'][i])
                 else:
                     if len(temp) > 0:
                         self.data['法院意见_涉及的法数'][i] = len(temp)#法数
@@ -685,17 +710,17 @@ class read_law:
                             sum_kuan += len(temp[j][2])#加和款数
                         self.data['法院意见_涉及的条数'][i] = sum_tiao
                         self.data['法院意见_涉及的款数'][i] = sum_kuan
-        
+
         # 再处理金额问题
-        for i in range(len(self.data['法院意见'])):
-            if not pd.isna(self.data['法院意见'][i]):  # 如果非空
-                temp1 = money_pattern.findall(self.data['法院意见'][i])  # temp1返回的是list，里面的元素为包含'XX元'字样的元素
+        for i in range(len(self.data['opinion'])):
+            if not pd.isna(self.data['opinion'][i]):  # 如果非空
+                temp1 = money_pattern.findall(self.data['opinion'][i])  # temp1返回的是list，里面的元素为包含'XX元'字样的元素
                 if len(temp1) == 0:  # 没有‘元’字样直接跳过
                     continue
                 self.data['法院意见_是否涉及金额'][i] = 1  # 不满足上述条件，则涉及金额
 
     def number14(self):
-        selected_data = self.data["判决结果"]
+        selected_data = self.data["result"]
         data_len = len(selected_data)
 
         basis = []  # 判决依据的条款
@@ -765,7 +790,7 @@ class read_law:
         final1 = []  # 是否为终审判决，是为1，不是为0
         final2 = []  # 是否为终审裁定，是为1，不是为0
 
-        for x in self.data['庭后告知']:
+        for x in self.data['notice']:
             if type(x) == type(np.nan):
                 final1.append(0)
                 final2.append(0)
@@ -798,6 +823,9 @@ class read_law:
         del newdata, final1, final2, newdict
 
     def number16(self):
+        '''
+        Appendix
+        '''
         pass
 
     def preprocess(self):

@@ -1,6 +1,15 @@
 # sufelaw2019
 
-## MySQL 连接
+## 直接调用law.data读取数据库数据
+为了简单方便使用数据库资源，我们已经把连接数据库的部分全部整合到了`law.data`，也就是原先的
+`law.preprocessing`当中。你可以使用如下的方式调用，
+```
+data = law.data.read_law(n=1000,prerprocessing=True).return_data()
+```
+将读取数据库中的前1000条数据，并自动进行预处理。当然，也可以选择不进行预处理，则勾选False。
+preprocessing默认为False。之后将开放选择类别等其他选项。
+
+## 也可以使用如下方式连接MySQL
 由于初次做项目的时候发现数据存在大量的不容和、所有人数据版本不同的情况，我们建立了一个非常容易使用的MySQL server，你可以直接通过MySQL对该服务器进行访问。
 
 之后将删除github里的所有数据。
@@ -47,16 +56,16 @@ python upload.py --dir='输入你存放数据的文件夹例如：./data' --u=ro
 ```
 mysql -h cdb-74dx1ytr.gz.tencentcdb.com -P 10008 -u root -p
 ```
-当然在python里，主要的使用方式是用以下语句：
+当然在python里，主要的使用方式是用以下语句，使用mysql包，或者pymysql都可以，这里用mysql作为简介。
 ```
 import mysql.connector
 import pandas as pd
 
 # 连接数据库
 cnx = mysql.connector.connect(user="root", password="sufelaw2019",
-                              host='cdb-74dx1ytr.gz.tencentcdb.com',
+                              host="cdb-74dx1ytr.gz.tencentcdb.com",
                               port = "10008",
-                              database='law')
+                              database="law")
 cursor = cnx.cursor(buffered=True)
 
 # 通过pandas阅读数据库内容

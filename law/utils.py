@@ -140,7 +140,7 @@ def ADBinfo(data, index):
 
     accuser_tag = re.compile(r'原告|上诉人|申请人')
     defender_tag = re.compile(r'被告|被上诉人|被申请人')
-    l1 = re.split(defender_tag, data['当事人'][index])  # 840 844
+    l1 = re.split(defender_tag, data['party'][index])  # 840 844
 
     proxy = re.compile(r'代理人(.*)')
     legal = re.compile(r'代表人(.*)')
@@ -226,19 +226,19 @@ def total_fa_tiao_kuan():
     output:
         借本库find_law_tiao_kuan_in_text函数，以dataframe的形式输出数据库中所有案件所涉及的法、条、款的清单
     '''
-    
+
     # 连接数据库
     cnx = pymysql.connect(user='root', password='sufelaw2019',
                                   host='cdb-74dx1ytr.gz.tencentcdb.com',
                                   port = 10008,
                                   database='law')
-    
+
     # 通过pandas阅读数据库内容
     data = pd.read_sql('SELECT * FROM Civil;',con=cnx)
-    
+
     #建立空的法、条、款清单
     df_list = pd.DataFrame(columns = ['fa','tiao','kuan'])
-    
+
     #填入数据
     for process in data['process']:
         x = find_law_tiao_kuan_in_text(process)
