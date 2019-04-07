@@ -49,9 +49,12 @@ mysql -h cdb-74dx1ytr.gz.tencentcdb.com -P 10008 -u root -p
 ```
 当然在python里，主要的使用方式是用以下语句：
 ```
+import mysql.connector
+import pandas as pd
+
 # 连接数据库
-cnx = mysql.connector.connect(user=root, password=sufelaw2019,
-                              host='cdb-74dx1ytr.tencentcdb.com',
+cnx = mysql.connector.connect(user="root", password="sufelaw2019",
+                              host='cdb-74dx1ytr.gz.tencentcdb.com',
                               port = "10008",
                               database='law')
 cursor = cnx.cursor(buffered=True)
