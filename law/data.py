@@ -7,6 +7,7 @@ import datetime
 import mysql.connector
 import pandas as pd
 
+
 class read_law:
     def __init__(self, n=1000, preprocessing=False):
         '''
