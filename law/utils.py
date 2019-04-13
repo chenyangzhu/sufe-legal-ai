@@ -283,12 +283,33 @@ def total_fa_tiao_kuan():
     return df_list
 
 
-def string2int(string):
+def string2float(string):
     '''
     If the string is convertable to int, return the int.
     If not, return the string back.
     '''
     try:
-        return int(string)
+        return float(string)
     except ValueError:
         return string
+
+
+def find_word_and_replace(string, find_str, replace_str):
+    '''
+    TODO
+    这个方程在一段文字中，找到一个字符，替换后返回整个字符序列
+    :param:
+        string:      str()
+        find_str:    str()  你要查找的字符
+        replace_str: str()  想要替换的字符
+    :return:
+        string       str()  已经替换后的字符串
+
+    注意：
+    1. 如果需要替换的字符不在字符串内，则直接输出
+    2. 如果出现两个及以上的字符，必须全部查找。
+
+    算法详情：
+    Knuth-Morris-Pratt(KMP)算法
+    https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm
+    '''
