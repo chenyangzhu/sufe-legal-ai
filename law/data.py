@@ -23,11 +23,13 @@ class read_law:
         self.n = n
         self.preprocessing = preprocessing
 
+        print("Connecting to Server...")
         cnx = mysql.connector.connect(user="root", password="sufelaw2019",
-                                      host='cdb-74dx1ytr.gz.tencentcdb.com',
-                                      port = "10008",
+                                      host="cdb-74dx1ytr.gz.tencentcdb.com",
+                                      port=10008,
                                       database='law')
         cursor = cnx.cursor(buffered=True)
+        print("Server Connected.")
 
         # 通过pandas阅读数据库内容
         query = 'SELECT * FROM Civil LIMIT ' + str(self.n) + ';'

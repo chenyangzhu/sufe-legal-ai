@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Dictionary:
-    def __init__(self, dict_dir, arg):
+    def __init__(self, dict_dir):
         '''
         算法要求：必须使用哈希列表 Hash Table，实在不行用dict()写。
         注意：绝对不可以用Dataframe的查找来写。
@@ -10,6 +10,12 @@ class Dictionary:
         '''
 
         pass
+
+    @property
+    def sign(self):
+        return ['，', '？', '！', '、', '—',
+                '“', '”', '；', '。', '|', '{', '}',
+                '《', '》', '.', ',', '<', '>', ':', '：', '）', '（']
 
     def string2idx(self, string):
         '''

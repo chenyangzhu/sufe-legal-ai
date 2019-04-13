@@ -310,6 +310,107 @@ def find_word_and_replace(string, find_str, replace_str):
     2. 如果出现两个及以上的字符，必须全部查找。
 
     算法详情：
-    Knuth-Morris-Pratt(KMP)算法
+    Knuth-Morris-Pratt(KMP)算法 O(n)算法
     https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm
     '''
+
+    def kmp_table(W):
+        '''
+        construct KMP table
+        :param:
+            W ; the sentence to be analyzied
+        :output:
+            T ; kmp_table
+        '''
+        pos = 1
+        cnd = 0
+        T = [0 for _ in range(len(W)+1)]
+        T[0] = -1
+
+        while pos < len(W):
+            if W[pos] == W[cnd]:
+                T[pos] == T[cnd]
+            else:
+                T[pos] = cnd
+                cnd = T[cnd]
+                while cnd >= 0 and W[pos] != W[cnd]:
+                    cnd = T[cnd]
+
+            pos += 1
+            cnd += 1
+        T[pos] = cnd
+        return T
+
+        def kmp_search(S, W):
+            '''
+            input:
+                an array of characters, S (the text to be searched)
+                an array of characters, W (the word sought)
+            output:
+                an array of integers, P (positions in S at which W is found)
+            '''
+            T = kmp_table(S)
+            j = 0  # the position of the current character in S
+            k = 0  # the position of the current character in W
+            P = []  # List to store all the positions that we found in S of W.
+            while j < len(S):
+                if W[k] == S[j]:
+                    j += 1
+                    k += 1
+                    if k == len(W):
+                        P.append(j-k)
+                        k = T[k]
+                else:
+                    k = T[k]
+                    if k < 0:
+                        j += 1
+                        k += 1
+            return P
+
+        idx = kmp_search(string, find_str)
+
+        if idx != []:
+            output_string = string[:idx[0]-1]
+
+            for i in range(len(idx)-1):
+                output_string += replace_str
+                output_string += string[idx[i]+len(replace_str):idx[i+1]]
+
+            output_string += string[idx[-1]:]
+        else:
+            output_string = string
+
+        return output_string
+
+
+def change_date_to_DATE(string):
+    '''
+    目标是识别出所有的日期，并且全部改为DATE
+    TODO 现在只是一个粗劣版本！
+    '''
+    b = []
+    ct1 = re.compile(r'[0-9]*年')
+    ct2 = re.compile(r'[0-9]*月')
+    ct3 = re.compile(r'[0-9]*日')
+    b.extend(ct1.findall(string))
+    b.extend(ct2.findall(string))
+    b.extend(ct3.findall(string))
+
+    for each_date in b:
+        string = string.replace(each_date, 'DATE')
+
+    return string
+
+
+def change_money_to_MONEY(string):
+    '''
+    把所有和钱有关的东西，转换为MONEY
+    难点在于可能会出现百元/亿元
+    TODO
+    '''
+    ct1 = re.compile(r'[0-9]*.元')
+    b = ct1.findall(string)
+
+    for each_date in b:
+        string = string.replace(each_date, 'MONEY')
+    return string
