@@ -1,5 +1,9 @@
 import numpy as np
+import pandas as pd
 
+place = ['郑州', '沈阳', '深圳', '广西', '广州', '乌鲁木齐','苏州','粤','南京',
+             '江苏','江南','南宁','华东','益州','沪东','福建','奉贤','亚洲','甘肃',
+             '泰安','东营','蒙','粤北','淮南','京西','连云港','江西','临沂']
 
 class Dictionary:
     def __init__(self, dict_dir):
@@ -8,8 +12,13 @@ class Dictionary:
         注意：绝对不可以用Dataframe的查找来写。
         在 init 里阅读文档中的字典文件，注意要把地名等字典都融合到一起。
         '''
-
-        pass
+        self.data = pd.read_excel(path)
+        self.dict_dir = dict(map(lambda x,y:[x,y], self.data['index'],self.data['word'])) 
+        self.data_len = len(self.data)
+        for key, val in self.dict_dir.items():
+            for j,words in enumerate(place):
+                if val == data_list[j]:
+                    self.dict_dir[key] = '地区'
 
     @property
     def sign(self):
@@ -27,8 +36,9 @@ class Dictionary:
         :return:
             idx int() 字符在字典里的序号
         '''
-        idx = 0
-        return idx
+        for key, val in self.dict_dir.items():
+            if val == string:
+                print("符号在字典里对应的字符 : %d" % key)
 
     def idx2string(self, idx):
         '''
@@ -40,5 +50,9 @@ class Dictionary:
         :return:
             string str() 字典里对应的字符
         '''
-        string = ""
-        return string
+        print ("字符在字典里的序号 : %s" % self.dict_dir.get(idx))
+
+if __name__ == "__main__":
+    test = Dictionary('.../dict.xlsx',place)
+    test.string2idx()
+    test.idx2string()
