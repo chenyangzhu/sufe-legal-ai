@@ -272,14 +272,10 @@ def total_fa_tiao_kuan():
                                 tiao = tiao_pattern.findall(tiao_kuan)  # 是个list，默认只有一个元素
                                 kuan = tiao_kuan.replace(tiao[0],'')
                                 existed_tiao_in_kuan.append(tiao[0])
-
                                 temp = [element[0],tiao[0],kuan]
                                 df_list.loc[df_list.shape[0]] = temp
-                            existed_tiao_in_kuan = list(set(existed_tiao_in_kuan))#去重
-                            for tiao1 in element[1]:
-                                if tiao1 not in existed_tiao_in_kuan:
-                                    temp = [element[0],tiao1,'']
-                                    df_list.loc[df_list.shape[0]] = temp
+    df_list = df_list.drop_duplicates()#去重
+    df_list = df_list.reset_index(drop = True)#重新编排索引,去除原索引                        
     return df_list
 
 
