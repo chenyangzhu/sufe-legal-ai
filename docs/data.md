@@ -1,5 +1,4 @@
-
-## law.data
+# law.data
 这一个模块主要用来处理所有的数据，包括连接数据库的形式调用数据、数据预处理等。
 
 
@@ -11,6 +10,15 @@
 - 函数
   - `law.data.case_reader.return_data()` 提取data，返回 pandas Dataframe
   - `store()` 存储data到本地，默认地址为"./cache/"
+- 使用方式：
+为了简单方便使用数据库资源，我们已经把连接数据库的部分全部整合到了`law.data`，也就是原先的
+`law.preprocessing`当中。你可以使用如下的方式调用，
+```
+data = law.data.law_reader(n=1000,prerprocessing=True).return_data()
+```
+将读取数据库中的前1000条数据，并自动进行预处理。当然，也可以选择不进行预处理，则勾选False。
+preprocessing默认为False。之后将开放选择类别等其他选项。
+
 
 #### `class` law.data.law_reader()
 用来读取法律，

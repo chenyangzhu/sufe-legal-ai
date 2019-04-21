@@ -5,3 +5,5 @@
 * [law.entity_extractor](entity_extractor.md)
 * [law.model](model.md)
 * [law.utils](utils.md)
+* [数据库与数据存储和调用(private)](database.md)
+* [使用UI界面](UI.md)
