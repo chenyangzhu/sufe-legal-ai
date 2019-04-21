@@ -1,10 +1,14 @@
-# sufelaw2019
+# 智慧法务系统
+> AI + 大数据赋能法务智能
+
+官方文档[链接](https://chenyangzhu.github.io/sufelaw2019/)
+
 
 ## 直接调用law.data读取数据库数据
 为了简单方便使用数据库资源，我们已经把连接数据库的部分全部整合到了`law.data`，也就是原先的
 `law.preprocessing`当中。你可以使用如下的方式调用，
 ```
-data = law.data.read_law(n=1000,prerprocessing=True).return_data()
+data = law.data.law_reader(n=1000,prerprocessing=True).return_data()
 ```
 将读取数据库中的前1000条数据，并自动进行预处理。当然，也可以选择不进行预处理，则勾选False。
 preprocessing默认为False。之后将开放选择类别等其他选项。
