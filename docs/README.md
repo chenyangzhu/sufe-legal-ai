@@ -5,13 +5,48 @@
 - 提供法条推荐系统
 - MIT 授权协议
 
-
-# law package 介绍
-
 ## law.data
-#### `class` law.data.read_law(n=1000, preprocessing=False)
-- `return_data()` 提取data
-- `store()` 存储data到本地
+#### `class` law.data.case_reader(n=1000, preprocessing=False)
+用来读取案件，
+- 输入:
+  - `n` 你想要读取的案件数目
+  - `preprocessing` 是否需要预处理
+- 函数
+  - `law.data.case_reader.return_data()` 提取data，返回 pandas Dataframe
+  - `store()` 存储data到本地，默认地址为"./cache/"
+#### `class` law.data.law_reader()
+用来读取法律，
+- 函数：
+  - `return_full_law(law_name)`
+    - 输入：
+    - `law_name`是你想要查询的法律的英语名，目前提供以下两个
+      - 中华人民共和国合同法 - contract
+      - 中华人民共和国劳动法 - labor
+    - 输出：
+      - pandas.dataframe 储存这条法律的所有信息，包括tag等
+  - `query(law_name)`
+    - 输入：
+      - `law_name`是你想要查询的法律的英语名
+    - 输出：
+      - dictionary [index，tag1，tag2，tag3，tag4，tag5，article]
+- 用法
+```
+rd = law.data.law_reader() # 生成reader对象
+rd.return_full_law("labor") # 查询劳动法
+rd.query("labor",10) # 查询劳动法第十条
+```
+
+## law.dictionary
+所有的字典都通过主类base_class建立，字典的源文件存储在`'./law/dict/`当中，字典必须用`utf-8`存储为`csv`格式。
+#### `base_class` law.dictionary.Dictioanry()
+这是所有dictionary文件的母函数，主要提供以下几个方程：
+- 函数：
+  - `word2idx(word:str) -> int` 输入字符串，返回在字典里对应的序号
+  - `idx2word(idx:int) -> str` 输入序号，返回字符串
+- 变量：
+  - `sign` 返回所有标点符号的列表(list)
+  - `dict_len` 返回字典长度
+
 
 ## law.model
 #### `class` law.model.basemodel()
@@ -21,12 +56,7 @@
 - `store()` 存储已经训练过的模型
 - `read()`读取先前训练过的模型
 
-## law.nlp
-#### law.nlp.TFIDF(string)
-计算某段文字中的TFIDF统计量。
-
-## law.dictionary
-TODO 用来存放构建字典的代码，和频率文件。
+## law.nembedding
 
 ## law.utils
 
