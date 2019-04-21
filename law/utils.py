@@ -221,7 +221,7 @@ def ADBinfo(data, index):
     return (info)
 
 
-def total_fa_tiao_kuan():
+def total_fa_tiao_kuan(data):
     '''
     output:
         借本库find_law_tiao_kuan_in_text函数，以dataframe的形式输出数据库中所有案件所涉及的法、条、款的清单。
@@ -233,13 +233,13 @@ def total_fa_tiao_kuan():
     '''
 
     # 连接数据库
-    cnx = pymysql.connect(user='root', password='sufelaw2019',
-                          host='cdb-74dx1ytr.gz.tencentcdb.com',
-                          port=10008,
-                          database='law')
+    # cnx = pymysql.connect(user='root', password='sufelaw2019',
+    #                      host='cdb-74dx1ytr.gz.tencentcdb.com',
+    #                      port=10008,
+    #                      database='law')
 
     # 通过pandas阅读数据库内容
-    data = pd.read_sql('SELECT * FROM Civil;', con=cnx)
+    # data = pd.read_sql('SELECT * FROM Civil;', con=cnx)
 
     # 记录样本数
     sample_n = len(data)
@@ -264,18 +264,18 @@ def total_fa_tiao_kuan():
                             df_list.loc[df_list.shape[0]] = temp
                         elif len(element[1]) != 0 and len(element[2]) == 0:  # 即这个列表里有法有条但没有款
                             for tiao in element[1]:
-                                temp = [element[0], tiao,'']
+                                temp = [element[0], tiao, '']
                                 df_list.loc[df_list.shape[0]] = temp
-                        elif len(element[1]) != 0 and len(element[2]) != 0:#即这个列表有法有条有款
+                        elif len(element[1]) != 0 and len(element[2]) != 0:  # 即这个列表有法有条有款
                             existed_tiao_in_kuan = []  # 存储已包含在element[2]中的条
                             for tiao_kuan in element[2]:  # tiao_kuan是一个字符串
                                 tiao = tiao_pattern.findall(tiao_kuan)  # 是个list，默认只有一个元素
-                                kuan = tiao_kuan.replace(tiao[0],'')
+                                kuan = tiao_kuan.replace(tiao[0], '')
                                 existed_tiao_in_kuan.append(tiao[0])
-                                temp = [element[0],tiao[0],kuan]
+                                temp = [element[0], tiao[0], kuan]
                                 df_list.loc[df_list.shape[0]] = temp
-    df_list = df_list.drop_duplicates()#去重
-    df_list = df_list.reset_index(drop = True)#重新编排索引,去除原索引                        
+    df_list = df_list.drop_duplicates()  # 去重
+    df_list = df_list.reset_index(drop = True)  # 重新编排索引,去除原索引
     return df_list
 
 

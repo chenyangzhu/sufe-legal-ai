@@ -5,10 +5,9 @@ from law.utils import *
 import jieba.posseg as pseg
 import datetime
 import mysql.connector
-import pandas as pd
 
 
-class read_law:
+class case_reader:
     def __init__(self, n=1000, preprocessing=False):
         '''
         n 就是一共需要读取多少种类型，
@@ -32,7 +31,12 @@ class read_law:
         print("Server Connected.")
 
         # 通过pandas阅读数据库内容
-        query = 'SELECT * FROM Civil LIMIT ' + str(self.n) + ';'
+        if n>=0:
+            query = 'SELECT * FROM Civil LIMIT ' + str(self.n) + ';'
+        else:
+            query = 'SELECT * FROM Civil;'
+
+        print("Start Reading Data...")
         self.data = pd.read_sql(query,con=cnx)
 
         print("Read Data Successful...")
@@ -865,3 +869,46 @@ class read_law:
 
     def store(self):
         self.data.to_csv("./.cache/" + str(datetime.time()))
+
+class law_reader:
+    def __init__(self):
+
+        print("Connecting to Server...")
+        self.cnx = mysql.connector.connect(user="root", password="sufelaw2019",
+                                      host="cdb-74dx1ytr.gz.tencentcdb.com",
+                                      port=10008,
+                                      database='law_article')
+        self.cursor = self.cnx.cursor(buffered=True)
+        print("Server Connected.")
+
+    def return_full_law(self, law_name):
+        '''
+        返回你指定的法律文献
+        :param law_name:        string           必须是英语
+        :return:                pd.Dataframe
+        '''
+        law_name = law_name
+
+        # 通过pandas阅读数据库内容
+        query = 'SELECT * FROM ' + law_name + ';'
+
+        print("Start Reading Law...")
+        law_article = pd.read_sql(query, con=self.cnx)
+
+        return law_article
+
+    def query(self, law_name:str, tiao:int):
+
+        '''
+        :param law_name:  string    法律名称，注意必须是英语
+        :param tiao:      int       条款序号，
+        :return: law      dict     [index，tag1，tag2，tag3，tag4，tag5，article]
+        '''
+
+        assert type(tiao) == int
+        query = 'SELECT * FROM ' + law_name + ' WHERE '+law_name+'.index = '+str(tiao)+';'
+        print("Start Querying")
+        law_article = pd.read_sql(query, con=self.cnx)
+        law_article = law_article.iloc[0].to_dict()
+
+        return law_article
