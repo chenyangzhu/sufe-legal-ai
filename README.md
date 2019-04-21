@@ -10,6 +10,7 @@
 白露佳@[Lucy Lujia Bai](https://github.com/Lujia-Bai)、
 马嘉晨@[cocoa-nut](https://github.com/cocoa-nut)、
 徐晓杰@[VillardX](https://github.com/VillardX)、
+吴家欣@[wjxin777](https://github.com/wjxin777)、
 袁康洪@[khyuan45](https://github.com/khyuan45)
 
 PTA：蔡畅威@[ccwccwccw](https://github.com/ccwccwccw)、
