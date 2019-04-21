@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import jieba
-import law.dictionary
 import law.utils
+import law
 
 
 # Base Model
@@ -14,7 +14,7 @@ class Embedding:
             jieba_dit 是用来输入于jieba里的dict，辅助我们切词，放置在
                         law/dict/jiebadict.txt中
         '''
-        self.dictionary = law.dictionary.Dictionary(dict_dir)
+        self.dictionary = law.Dictionary(dict_dir)
         jieba.load_userdict(jieba_dict)
         '''
         For hyper-parameters
@@ -115,8 +115,7 @@ class word_freq(Embedding):
         '''
         super().__init__(dict_dir)
 
-    def embed(self, string):
-        string = self.prep(string)
+    def embed(self, string, plantiff, defendant, third_party):
         # TODO Some codes here.
         one_hot = []
 

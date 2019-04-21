@@ -1,10 +1,6 @@
 import numpy as np
 import pandas as pd
 
-place = ['郑州', '沈阳', '深圳', '广西', '广州', '乌鲁木齐','苏州','粤','南京',
-             '江苏','江南','南宁','华东','益州','沪东','福建','奉贤','亚洲','甘肃',
-             '泰安','东营','蒙','粤北','淮南','京西','连云港','江西','临沂']
-
 class Dictionary:
     def __init__(self, dict_dir):
         '''
@@ -12,13 +8,19 @@ class Dictionary:
         注意：绝对不可以用Dataframe的查找来写。
         在 init 里阅读文档中的字典文件，注意要把地名等字典都融合到一起。
         '''
-        self.data = pd.read_excel(path)
-        self.dict_dir = dict(map(lambda x,y:[x,y], self.data['index'],self.data['word'])) 
-        self.data_len = len(self.data)
-        for key, val in self.dict_dir.items():
-            for j,words in enumerate(place):
-                if val == data_list[j]:
-                    self.dict_dir[key] = '地区'
+        self.data = pd.read_csv(dict_dir,encoding="UTF8")
+
+        print("Building Dictionary from ", dict_dir)
+        self._word2idx = {}
+        self._idx2word = {}
+        for i in range(len(self.data)):
+            self._word2idx[self.data[i]['word']] = self.data[i]['index']
+            self._idx2word[self.data[i]['index']] = self.data[i]['word']
+
+    @property
+    def dict_len(self):
+        assert len(self.word2idx) == len(self.idx2word)
+        return len(self.word2idx)
 
     @property
     def sign(self):
@@ -26,33 +28,38 @@ class Dictionary:
                 '“', '”', '；', '。', '|', '{', '}',
                 '《', '》', '.', ',', '<', '>', ':', '：', '）', '（']
 
-    def string2idx(self, string):
-        '''
-        TODO
-        I/O 要求：输入一个字符，返回一个他在字典里的序号
+    def word2idx(self, word):
+        return self._word2idx[word]
 
-        :param:
-            string str() 我要查找的字符
-        :return:
-            idx int() 字符在字典里的序号
-        '''
-        for key, val in self.dict_dir.items():
-            if val == string:
-                print("符号在字典里对应的字符 : %d" % key)
+    def idx2word(self, idx):
+        return self._idx2word[idx]
 
-    def idx2string(self, idx):
-        '''
-         TODO
-         I/O 要求： 输入一个序号，返回他在字典里对应的字符
 
-         :param:
-            idx int() 序号
-        :return:
-            string str() 字典里对应的字符
+class City(Dictionary):
+    def __init__(self, dict_dir):
         '''
-        print ("字符在字典里的序号 : %s" % self.dict_dir.get(idx))
+        这个字点专门用来存储地点和城市，输入的地址需要是城市文件的地址
+        默认在law/dict/places.csv
+        这个文件里有五列，分别为
+        index	word	region	area	province
+        序号     城市名   地区     大区    省份
+        4       上海市   苏皖沪    东区    上海市
+        城市叫 word 的原因是为了与主函数同步
+        '''
+        super().__init__(dict_dir)
 
-if __name__ == "__main__":
-    test = Dictionary('.../dict.xlsx',place)
-    test.string2idx()
-    test.idx2string()
+    def idx2city(self, idx):
+        # 这两个方程是等价的
+        return self.idx2word(idx)
+
+    def city2idx(self, city):
+        # 这两个方程是等价的
+        return self.word2idx(city)
+
+    def city2province(self, city):
+        # TODO 城市转换为省份
+        return 0
+
+    def city2region(self, city):
+        # TODO 城市转为大区
+        return 0
