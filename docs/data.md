@@ -2,9 +2,11 @@
 这一个模块主要用来处理所有的数据，包括连接数据库的形式调用数据、数据预处理等。
 
 
-#### `class` law.data.case_reader(n=1000, preprocessing=False)
+#### `class` law.data.case_reader(user, password, n=1000, preprocessing=False)
 用来读取案件，
 - 输入:
+  - `user` 你的用户名
+  - `password` 你的密码
   - `n` 你想要读取的案件数目
   - `preprocessing` 是否需要预处理
 - 函数
@@ -37,7 +39,8 @@ preprocessing默认为False。之后将开放选择类别等其他选项。
       - dictionary [index，tag1，tag2，tag3，tag4，tag5，article]
 - 用法
 ```
-rd = law.data.law_reader() # 生成reader对象
+# 生成reader对象
+rd = law.data.law_reader(user="zhuchenyang", password="law-zhuchenyang")
 rd.return_full_law("labor") # 查询劳动法
 rd.query("labor",10) # 查询劳动法第十条
 ```

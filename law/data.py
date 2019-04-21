@@ -8,7 +8,7 @@ import mysql.connector
 
 
 class case_reader:
-    def __init__(self, n=1000, preprocessing=False):
+    def __init__(self, user, password, n=1000, preprocessing=False):
         '''
         n 就是一共需要读取多少种类型，
         preprocessing 是是否需要自动preprocess
@@ -23,7 +23,7 @@ class case_reader:
         self.preprocessing = preprocessing
 
         print("Connecting to Server...")
-        cnx = mysql.connector.connect(user="root", password="sufelaw2019",
+        cnx = mysql.connector.connect(user=user, password=password,
                                       host="cdb-74dx1ytr.gz.tencentcdb.com",
                                       port=10008,
                                       database='law')
@@ -871,10 +871,10 @@ class case_reader:
         self.data.to_csv("./.cache/" + str(datetime.time()))
 
 class law_reader:
-    def __init__(self):
+    def __init__(self, user, password):
 
         print("Connecting to Server...")
-        self.cnx = mysql.connector.connect(user="root", password="sufelaw2019",
+        self.cnx = mysql.connector.connect(user=user, password=password,
                                       host="cdb-74dx1ytr.gz.tencentcdb.com",
                                       port=10008,
                                       database='law_article')

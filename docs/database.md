@@ -3,12 +3,13 @@
 我们的数据库布置在腾讯云上，地址是
 ```
 {
-  user="root",
-  password="sufelaw2019",
+  user="你的名字拼音",
+  password=“law”+"你的名字拼音",
   host="cdb-74dx1ytr.gz.tencentcdb.com",
   port = "10008",
 }
 ```
+例如：user="zhuchenyang", password="law-zhuchenyang"。注意这个帐号并不存在。
 > Warning: Do not expose user and password to anyone.
 
 ## 连接数据库
@@ -19,12 +20,13 @@ mysql -h cdb-74dx1ytr.gz.tencentcdb.com -P 10008 -u root -p
 ```
 ### 使用python连接
 在python里，主要的使用方式是用以下语句，使用mysql包，或者pymysql都可以，这里用mysql作为简介。
+
 ```
 import mysql.connector
 import pandas as pd
 
 # 连接数据库
-cnx = mysql.connector.connect(user="root", password="sufelaw2019",
+cnx = mysql.connector.connect(user="user", password="password",  # 注意修改
                               host="cdb-74dx1ytr.gz.tencentcdb.com",
                               port = "10008",
                               database="law")
