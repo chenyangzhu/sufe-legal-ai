@@ -5,7 +5,14 @@
 - 全国法律精准推荐
 - 事实为据精确量刑
 
-合作者：朱晨阳、陈文奇、白露佳、马嘉晨、徐晓杰、袁康洪
-PTA：蔡畅威、李逸凡
+合作者：朱晨阳、
+陈文奇@[Evangeline98](https://github.com/Evangeline98)、
+白露佳@[Lucy Lujia Bai](https://github.com/Lujia-Bai)、
+马嘉晨@[cocoa-nut](https://github.com/cocoa-nut)、
+徐晓杰@[VillardX](https://github.com/VillardX)、
+袁康洪@[khyuan45](https://github.com/khyuan45)
+
+PTA：蔡畅威@[ccwccwccw](https://github.com/ccwccwccw)、
+李逸凡
 
 查看官方文档[链接](https://chenyangzhu.github.io/sufelaw2019/)
