@@ -8,7 +8,7 @@ class Dictionary:
         注意：绝对不可以用Dataframe的查找来写。
         在 init 里阅读文档中的字典文件，注意要把地名等字典都融合到一起。
         '''
-        self.data = pd.read_csv(dict_dir,encoding="UTF8")
+        self.data = pd.read_csv(dict_dir, encoding="UTF8")
 
         print("Building Dictionary from ", dict_dir)
         self._word2idx = {}
@@ -39,6 +39,7 @@ class Dictionary:
             return self._idx2word[idx]
         except KeyError:
             return "UNK"
+
 
 class City(Dictionary):
     def __init__(self, dict_dir):

@@ -82,7 +82,7 @@ class Embedding:
 
     def map(self, cutted):
         '''
-        TODO
+        Tdictionary (copy).csvODO
         这个方程用来将cutted后的string list，通过字典，变为数字表达形式。
         输入：
             分词后的字符串的列表，例如：["今天","天气","真好"]
@@ -97,7 +97,10 @@ class Embedding:
         输出：
             数字组成的列表，例如[10,1293,123]
         '''
-
+        mapped = []
+        for each_word in cutted:
+            mapped.append(self.dictionaryself.word2idx(each_word))
+        return mapped
 
     def embed(self, string, plantiff, defendant, third_party):
         '''
@@ -109,11 +112,18 @@ class Embedding:
 
         Notice that: 这一部分是每一个方法都不同的。
         '''
-        # 首先调用cut进行预处理
-        cutted = self.cut(string, plantiff, defendant, third_party)
-        # 进行一定操作
+        # 首先调用transform进行预处理
+        transformed = self.transform(string, plantiff, defendant, third_party)
+
+        # 分词
+        cutted = self.cut(transformed)
+
+        # 然后进行map操作变为num_list
         num_list = self.map(cutted)
+
+        # 进行embed操作每个不同方法不同
         embedded = num_list
+
         return embedded
 
     def embed_pandas(self, df, targets, plantiff="plantiff",
@@ -150,7 +160,6 @@ class word_freq(Embedding):
         super().__init__(dict_dir)
 
     def embed(self, string, plantiff, defendant, third_party):
-        # TODO Some codes here.
         one_hot = []
 
         return one_hot
@@ -166,6 +175,10 @@ class char_freq(Embedding):
 
 
 class TFIDF(Embedding):
+    '''
+    This class is updated by Klaus.
+    '''
+
     def __init__(self, dict_dir):
         '''
         TODO
