@@ -29,11 +29,16 @@ class Dictionary:
                 '《', '》', '.', ',', '<', '>', ':', '：', '）', '（']
 
     def word2idx(self, word):
-        return self._word2idx[word]
+        try:
+            return self._word2idx[word]
+        except KeyError:
+            return self._word2idx["UNK"]
 
     def idx2word(self, idx):
-        return self._idx2word[idx]
-
+        try:
+            return self._idx2word[idx]
+        except KeyError:
+            return "UNK"
 
 class City(Dictionary):
     def __init__(self, dict_dir):

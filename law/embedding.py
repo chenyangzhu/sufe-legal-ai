@@ -20,36 +20,42 @@ class Embedding:
         For hyper-parameters
         '''
 
-    def cut(self, string, plantiff, defendant, third_party):
+    def transform(self, string, plantiff=None, defendant=None, third_party=None):
         '''
-        TODO
-        分词 + 全局预处理，将所有包含以下字符的信息，转换为后面的符号
+        这一部分，主要做的是 entity identification.
+
+        全局预处理，将所有包含以下字符的信息，转换为后面的符号
         '地名': PLA
         '原告': PLT
         '被告': DFD
         '第三人': THP
         '标点符号': 直接删除
         '数字': NUMBER
-        无法识别的字符/字典里没有的： <UNK>
 
         :param:
             string str() 需要切词的文件
             plantiff str() 各个被告，用‘、’连接（就是数据库里的那一列）
             defendant str() 各个元告，用'、'连接
             third_party str() 各个第三人，用'、'连接
+
+        :output:
+            transformed string
         '''
         # 以下三个的来源全部都是来自输入的信息
         # Replace 原告名字
-        for each_name in plantiff.split('、'):
-            string = string.replace(each_name, 'PLT')
+        if not plantiff: # Make sure it's not none
+            for each_name in plantiff.split('、'):
+                string = string.replace(each_name, 'PLT')
 
         # Replace 被告名字
-        for each_name in defendant.split('、'):
-            string = string.replace(each_name, 'DFD')
+        if not defendant:
+            for each_name in defendant.split('、'):
+                string = string.replace(each_name, 'DFD')
 
         # Replace 第三人名字
-        for each_name in plantiff.split('、'):
-            string = string.replace(each_name, 'THP')
+        if not plantiff:
+            for each_name in plantiff.split('、'):
+                string = string.replace(each_name, 'THP')
 
         # 以下来源来自我们的字典
         # 直接删除 标点符号
@@ -63,8 +69,35 @@ class Embedding:
         # TOOD 这里可以进一步优化很多
         string = law.utils.change_money_to_MONEY(string)
 
-        cutted = [each_word for each_word in jieba.cut(string)]
+        return string
+
+    def cut(self, transformed):
+        '''
+        目前使用结巴分词分词，之后可以更改
+        character-level model 不需要分词
+        TODO 可能需要手动把大写英语字母切开
+        '''
+        cutted = [each_word for each_word in jieba.cut(transformed)]
         return cutted
+
+    def map(self, cutted):
+        '''
+        TODO
+        这个方程用来将cutted后的string list，通过字典，变为数字表达形式。
+        输入：
+            分词后的字符串的列表，例如：["今天","天气","真好"]
+        算法：
+            利用self.dictionary.word2idx()得到字符在字典里对应的数字序号
+            例如：
+                今天 -> 10
+                天气 -> 1293
+                真好 -> 123
+            无法识别的字符/字典里没有的： <UNK>
+
+        输出：
+            数字组成的列表，例如[10,1293,123]
+        '''
+
 
     def embed(self, string, plantiff, defendant, third_party):
         '''
@@ -79,7 +112,8 @@ class Embedding:
         # 首先调用cut进行预处理
         cutted = self.cut(string, plantiff, defendant, third_party)
         # 进行一定操作
-        embedded = cutted
+        num_list = self.map(cutted)
+        embedded = num_list
         return embedded
 
     def embed_pandas(self, df, targets, plantiff="plantiff",
