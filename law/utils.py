@@ -410,3 +410,37 @@ def change_money_to_MONEY(string):
     for each_date in b:
         string = string.replace(each_date, 'MONEY')
     return string
+
+
+def cnnum_to_num(num_string):
+    return 0
+
+
+def find_number_in_string(string: str, replace):
+    '''
+    TODO for ccwccwccw
+    输入：中文的数字(type: str)（例如：八十、五十等）
+         或包含数字的字符串（例如：这件衣服五十元）
+
+    输出：
+        若replace = True, 则输出替换了阿拉伯数字后的字符串 type: str
+        若replace = False, 则只输出阿拉伯数字 type: int64
+
+    输出："这件衣服五十元"
+        若replace = True, 输出："这件衣服50元"
+        若replace = False， 输出：50
+
+    例子：输入           -> replace = True   / replace = False
+         八十           -> 80               / 80
+        这件衣服五十元    -> 这件衣服50元      / 50
+         十万           -> 100000          / 100000
+         五十元或三百块   -> 50元或300块       / [50,300]
+
+    算法要求：
+        1. 需要在O(nlog(n))或最多O(n^2)时间内完成。
+        2. 可以单独建立一个函数，cnnum_to_num(str),只做最简单的输入“五十”输出50的功能，
+           这个函数不带查找功能，输入的必须就是数字的汉字表示，输出对应的数字。
+        3. 注意：replace=True的时候输出的必须是字符串（str），
+                replace=False，必须是int，或者int列表。
+    '''
+    return 0
