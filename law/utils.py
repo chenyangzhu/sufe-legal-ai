@@ -413,12 +413,37 @@ def change_money_to_MONEY(string):
 
 
 def cnnum_to_num(num_string):
-    return 0
-
-
-def find_number_in_string(string: str, replace):
     '''
-    TODO for ccwccwccw
+    此函数仅限将中文数字转化为阿拉伯数字
+    eg: cnnum_to_num('五十')----->50
+        cnnum_to_num('五千三百零七')----->5307
+    对于将句子中的中文数字转化为阿拉伯数字，可查看find_number_in_string函数
+    '''
+    common_used_numerals ={'零':0, '一':1, '二':2, '两':2, '三':3, '四':4, '五':5, '六':6, '七':7, '八':8, '九':9, '十':10, '百':100, '千':1000, '万':10000, '亿':100000000}
+    total = 0
+    r = 1              #表示单位：个十百千...
+    for i in range(len(num_string) - 1, -1, -1):
+      val = common_used_numerals.get(num_string[i])
+      if val >= 10 and i == 0:  #应对 十三 十四 十*之类
+        if val > r:
+          r = val
+          total = total + val
+        else:
+          r = r * val
+          total =total + r 
+      elif val >= 10:
+        if val > r:
+          r = val
+        else:
+          r = r * val
+      else:
+        total = total + r * val
+    return total
+
+
+def find_number_in_string(cnstr, replace):
+    '''
+    TODO
     输入：中文的数字(type: str)（例如：八十、五十等）
          或包含数字的字符串（例如：这件衣服五十元）
 
@@ -443,4 +468,31 @@ def find_number_in_string(string: str, replace):
         3. 注意：replace=True的时候输出的必须是字符串（str），
                 replace=False，必须是int，或者int列表。
     '''
-    return 0
+    common_used_numerals ={'零':0, '一':1, '二':2, '两':2, '三':3, '四':4, '五':5, '六':6, '七':7, '八':8, '九':9, '十':10, '百':100, '千':1000, '万':10000, '亿':100000000}
+    i = 0
+    str_temp = num = ''
+    num_result = []
+    string_result = []
+    while i < len(cnstr):
+        if cnstr[i] in common_used_numerals.keys():
+            while cnstr[i] in common_used_numerals.keys():
+                num = num + cnstr[i]
+                i += 1
+                if i == len(cnstr):
+                    break
+            num = cnnum_to_num(num)
+            num_result.append(num)
+            string_result.append(str(num))
+            num = ''
+        else:
+            while cnstr[i] not in common_used_numerals.keys():
+                str_temp = str_temp + cnstr[i]
+                i += 1
+                if i == len(cnstr):
+                    break
+            string_result.append(str_temp)
+            str_temp = ''
+    if replace:
+        return ''.join(string_result)
+    else:
+        return num_result
