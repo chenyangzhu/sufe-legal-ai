@@ -17,3 +17,6 @@ PTA：蔡畅威@[ccwccwccw](https://github.com/ccwccwccw)、
 李逸凡
 
 查看官方文档[链接](https://chenyangzhu.github.io/sufelaw2019/)
+
+[教程（一）:读取数据并推荐法律]()
+涉及law包使用，tf.keras，和所有到现在为止的预处理

@@ -14,8 +14,8 @@ class Dictionary:
         self._word2idx = {}
         self._idx2word = {}
         for i in range(len(self.data)):
-            self._word2idx[self.data[i]['word']] = self.data[i]['index']
-            self._idx2word[self.data[i]['index']] = self.data[i]['word']
+            self._word2idx[self.data.iloc[i]['word']] = self.data.iloc[i]['index']
+            self._idx2word[self.data.iloc[i]['index']] = self.data.iloc[i]['word']
 
     @property
     def dict_len(self):

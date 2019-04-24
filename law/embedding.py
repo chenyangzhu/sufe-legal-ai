@@ -45,24 +45,26 @@ class Embedding:
         # Replace 原告名字
         if not plantiff: # Make sure it's not none
             for each_name in plantiff.split('、'):
-                string = string.replace(each_name, 'PLT')
+                string = str(string).replace(each_name, 'PLT')
 
         # Replace 被告名字
         if not defendant:
             for each_name in defendant.split('、'):
-                string = string.replace(each_name, 'DFD')
+                string = str(string).replace(each_name, 'DFD')
 
         # Replace 第三人名字
         if not plantiff:
             for each_name in plantiff.split('、'):
-                string = string.replace(each_name, 'THP')
+                string = str(string).replace(each_name, 'THP')
 
         # 以下来源来自我们的字典
         # 直接删除 标点符号
         for each_sign in self.dictionary.sign:
-            string = string.replace(each_sign, '')
+            # The extra str is to make sure that replace would work
+            string = str(string).replace(each_sign, '')
 
         # 把涉及到的年月日变为 "DATE"
+        # TODO, 这里的方法让date没办法用结巴分词分开
         string = law.utils.change_date_to_DATE(string)
 
         # 把涉及到的金钱，全部变为NUMBER，注意了，因为有“万”、“忆”等修饰词，这些词也要弄掉。
@@ -99,14 +101,32 @@ class Embedding:
         '''
         mapped = []
         for each_word in cutted:
-            mapped.append(self.dictionaryself.word2idx(each_word))
+            mapped.append(self.dictionary.word2idx(each_word))
         return mapped
 
-    def embed(self, string, plantiff, defendant, third_party):
+    def pad(self, mapped, pad=2000):
+        '''
+        After mapping to num_list, we need to do padding,
+        such that we would be able to use all models without getting trouble with
+        dimensions.
+        Input:
+            mapped num_list
+            pad              lenth you want to pad, set default = 2000
+        output: padded num_list
+        '''
+        if len(mapped) >= 2000:
+            return mapped[:2000]
+        elif len(mapped) < 2000:
+            _mapped = mapped.copy()
+            _mapped.extend([0] * (2000 - len(_mapped)))
+            return _mapped
+
+    def embed(self, string, plantiff, defendant, third_party, pad = 2000):
         '''
         输入一段文字，对这一段文字进行分词+mapping处理
         :param:
             str() 需要输入的string
+            pad: 你需要pad的max_len
         :return:
             np.array() 输出的embedding
 
@@ -114,37 +134,44 @@ class Embedding:
         '''
         # 首先调用transform进行预处理
         transformed = self.transform(string, plantiff, defendant, third_party)
-
+        # print(transformed)
         # 分词
         cutted = self.cut(transformed)
-
+        # print(cutted)
         # 然后进行map操作变为num_list
         num_list = self.map(cutted)
+        # print(num_list)
+        padded_list = self.pad(num_list, pad=pad)
 
         # 进行embed操作每个不同方法不同
-        embedded = num_list
-
+        embedded = padded_list
         return embedded
 
     def embed_pandas(self, df, targets, plantiff="plantiff",
-                     defendant="defendant", third_party="third_party"):
+                     defendant="defendant", third_party="third_party", pad=2000):
         '''
-        这个方程直接输入一个 dataframe, targets 是目标列的名字，可以有多个targets
+        这个方程直接输入一个 dataframe,
+        targets 是目标列的名字，可以有多个targets. target 必须是 list，即使只有一个！
         '''
         embedded_list = []
         for i in range(df.shape[0]):
             if i % 20 == 0:
                 print("Doing", i, ". Total", df.shape[0])
             each_row_embed = []
-            for each_target in targets:
-                try:
+            if type(targets) == str:
+                # 说明只有一个输入的str
+                embedded_list.append(self.embed(string=df.iloc[i][targets],
+                                                     plantiff=df.iloc[i][plantiff],
+                                                     defendant=df.iloc[i][defendant],
+                                                     third_party=df.iloc[i][third_party]))
+            else:
+                # 多target模式
+                for each_target in targets:
                     each_row_embed.append(self.embed(string=df.iloc[i][each_target],
                                                          plantiff=df.iloc[i][plantiff],
                                                          defendant=df.iloc[i][defendant],
                                                          third_party=df.iloc[i][third_party]))
-                except:
-                    each_row_embed.append('')
-            embedded_list.append(each_row_embed)
+                embedded_list.append(each_row_embed)
         return embedded_list
 
 
