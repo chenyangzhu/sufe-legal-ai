@@ -20,7 +20,7 @@ class Embedding:
         For hyper-parameters
         '''
 
-    def transform(self, string, plantiff=None, defendant=None, third_party=None):
+    def transform(self, string, plantiff='', defendant='', third_party=''):
         '''
         这一部分，主要做的是 entity identification.
 
@@ -43,19 +43,19 @@ class Embedding:
         '''
         # 以下三个的来源全部都是来自输入的信息
         # Replace 原告名字
-        if not plantiff: # Make sure it's not none
-            for each_name in plantiff.split('、'):
-                string = str(string).replace(each_name, 'PLT')
+        # if not plantiff: # Make sure it's not none
+        for each_name in plantiff.split('、'):
+            string = str(string).replace(each_name, 'PLT')
 
         # Replace 被告名字
-        if not defendant:
-            for each_name in defendant.split('、'):
-                string = str(string).replace(each_name, 'DFD')
+        # if not defendant:
+        for each_name in defendant.split('、'):
+            string = str(string).replace(each_name, 'DFD')
 
         # Replace 第三人名字
-        if not plantiff:
-            for each_name in plantiff.split('、'):
-                string = str(string).replace(each_name, 'THP')
+        # if not plantiff:
+        for each_name in plantiff.split('、'):
+            string = str(string).replace(each_name, 'THP')
 
         # 以下来源来自我们的字典
         # 直接删除 标点符号
@@ -84,7 +84,6 @@ class Embedding:
 
     def map(self, cutted):
         '''
-        Tdictionary (copy).csvODO
         这个方程用来将cutted后的string list，通过字典，变为数字表达形式。
         输入：
             分词后的字符串的列表，例如：["今天","天气","真好"]
@@ -121,7 +120,7 @@ class Embedding:
             _mapped.extend([0] * (2000 - len(_mapped)))
             return _mapped
 
-    def embed(self, string, plantiff, defendant, third_party, pad = 2000):
+    def embed(self, string, plantiff='', defendant='', third_party='', pad = 2000):
         '''
         输入一段文字，对这一段文字进行分词+mapping处理
         :param:
@@ -172,11 +171,11 @@ class Embedding:
                                                          defendant=df.iloc[i][defendant],
                                                          third_party=df.iloc[i][third_party]))
                 embedded_list.append(each_row_embed)
-        return embedded_list
+        return np.array(embedded_list)
 
 
 class word_freq(Embedding):
-    def __init___(self, dict_dir):
+    def __init___(self, dict_dir, jieba_dict):
         '''
         TODO
         最简单的词频法，用我们已经得到的字典，将字符串分词后对应字典里的词，如果没有这个词，
@@ -184,20 +183,20 @@ class word_freq(Embedding):
 
         这个模型的输出是一个 数组 用来表示这段话。
         '''
-        super().__init__(dict_dir)
+        super().__init__(dict_dir, jieba_dict)
 
     def embed(self, string, plantiff, defendant, third_party):
-        one_hot = []
 
-        return one_hot
+        return 0
 
 
 class char_freq(Embedding):
-    def __init__(self, dict_dir):
+    def __init__(self, dict_dir, jieba_dict):
         '''
         TODO
         不使用词频进行统计，完全按照一个一个汉字来处理。
         '''
+        super().__init__(dict_dir, jieba_dict)
         pass
 
 
@@ -206,16 +205,18 @@ class TFIDF(Embedding):
     This class is updated by Klaus.
     '''
 
-    def __init__(self, dict_dir):
+    def __init__(self, dict_dir, jieba_dict):
         '''
         TODO
         TFIDF的定义和计算方式可以在这里看到 http://www.tfidf.com/
         '''
+        super().__init__(dict_dir, jieba_dict)
+
         pass
 
 
 class BERT(Embedding):
-    def __init__(self, dict_dir):
+    def __init__(self, dict_dir, jieba_dict):
         '''
         TODO
         BERT - Bidirectional Encoder Representations from Transformers
@@ -229,4 +230,6 @@ class BERT(Embedding):
         - “法官”在字典里，返回法官在字典里的序号，
         - “黑人问好”不在字典里，返回[“黑”,“人”，“问”，“号”]，或者返回['黑人','问号']
         '''
+        super().__init__(dict_dir, jieba_dict)
+
         pass
