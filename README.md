@@ -18,6 +18,4 @@ PTA：蔡畅威@[ccwccwccw](https://github.com/ccwccwccw)、
 
 查看官方文档[链接](https://chenyangzhu.github.io/sufelaw2019/)
 
-[教程（一）:读取数据并推荐法律](https://github.com/chenyangzhu/sufelaw2019/blob/master/law_recommendation.ipynb)
-
-涉及law包使用，NLP预处理pipeline，tf.keras等，模型准确率92%左右。
+[教程（一）:读取数据并推荐法律](https://github.com/chenyangzhu/sufelaw2019/blob/master/law_recommendation.ipynb) 涉及law包使用，NLP预处理pipeline，tf.keras等，模型准确率92%左右。
