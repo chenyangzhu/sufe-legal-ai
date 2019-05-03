@@ -19,8 +19,7 @@ class Dictionary:
 
     @property
     def dict_len(self):
-        assert len(self.word2idx) == len(self.idx2word)
-        return len(self.word2idx)
+        return len(self._word2idx)
 
     @property
     def sign(self):

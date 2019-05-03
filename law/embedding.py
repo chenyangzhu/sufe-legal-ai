@@ -7,14 +7,14 @@ import law
 
 # Base Model
 class Embedding:
-    def __init__(self, dict_dir, jieba_dict):
+    def __init__(self, dictionary, jieba_dict):
         '''
         :param:
-            dict_dir 是普通的我们构架好的dict，直接用Dicttionary调取
+            dictionary 是一个字典对象
             jieba_dit 是用来输入于jieba里的dict，辅助我们切词，放置在
                         law/dict/jiebadict.txt中
         '''
-        self.dictionary = law.Dictionary(dict_dir)
+        self.dictionary = dictionary
         jieba.load_userdict(jieba_dict)
         '''
         For hyper-parameters
